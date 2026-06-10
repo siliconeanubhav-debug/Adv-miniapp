@@ -1,299 +1,351 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AC Premium - Mini App</title>
+    <title>AC Premium - Marketplace Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0f1014; color: #ffffff; padding-bottom: 80px; -webkit-user-select: none; user-select: none; }
+        body { background-color: #0f1014; color: #ffffff; padding-bottom: 90px; }
         .container { max-width: 500px; margin: auto; padding: 15px; }
 
-        /* टॉप हेडर */
+        /* Header Styles */
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .brand-logo { font-size: 24px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 5px; }
-        .brand-logo span { background: #ff9900; color: #000; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-        .top-badges { display: flex; gap: 8px; }
-        .badge-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); color: #ff8888; font-size: 11px; padding: 5px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; text-decoration: none; }
-        .badge-btn.console { color: #ffaa44; }
+        .brand-logo { font-size: 24px; font-weight: 800; }
+        .brand-logo span { background: #ff9900; color: #000; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
+        .vip-status-badge { background: rgba(255,153,0,0.15); border: 1px solid #ff9900; color: #ff9900; font-size: 11px; padding: 5px 12px; border-radius: 20px; font-weight: bold; }
 
-        /* मेन बैनर (Featured Section) */
-        .featured-banner { width: 100%; height: 260px; border-radius: 24px; position: relative; background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .featured-banner::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(15,16,20,1) 10%, rgba(15,16,20,0.3) 60%, rgba(0,0,0,0) 100%); z-index: 1; }
+        /* 5-Banner Image Carousel */
+        .carousel-container { position: relative; width: 100%; height: 220px; border-radius: 20px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+        .carousel-slide { display: none; width: 100%; height: 100%; background-size: cover; background-position: center; flex-direction: column; justify-content: flex-end; padding: 20px; position: relative; transition: opacity 0.5s ease-in-out; }
+        .carousel-slide.active { display: flex; }
+        .carousel-slide::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #0f1014 15%, transparent 100%); z-index: 1; }
         .banner-content { position: relative; z-index: 2; }
-        .tag-trending { background: #ff5500; color: #fff; font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .banner-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-        .banner-meta { font-size: 12px; color: #b3b3b3; display: flex; gap: 10px; align-items: center; }
+        .tag-trending { background: #ff5500; color: #fff; font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 20px; display: inline-block; margin-bottom: 5px; text-transform: uppercase; }
+        .banner-title { font-size: 20px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .carousel-dots { position: absolute; bottom: 10px; right: 20px; display: flex; gap: 5px; z-index: 3; }
+        .dot { width: 6px; height: 6px; background: rgba(255,255,255,0.4); border-radius: 50%; transition: 0.2s; }
+        .dot.active { background: #ff9900; width: 15px; border-radius: 10px; }
 
-        /* कैटेगरी फिल्टर्स */
-        .category-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
-        .category-scroll::-webkit-scrollbar { display: none; }
-        .cat-btn { background: #1e2029; color: #b3b3b3; border: none; padding: 10px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
-        .cat-btn.active { background: #ff5500; color: #fff; }
-
-        /* सेक्शन टाइटल */
-        .section-title { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; display: flex; align-items: center; gap: 6px; }
-        .section-title::before { content: ''; display: inline-block; width: 4px; height: 16px; background: #ff5500; border-radius: 2px; }
-
-        /* ट्रेंडिंग ग्रिड / लिस्ट */
-        .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
-        .show-card { background: #1a1b24; border-radius: 16px; overflow: hidden; position: relative; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.05); }
-        .card-img-wrapper { position: relative; width: 100%; aspect-ratio: 1/1.2; overflow: hidden; }
-        .show-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
-        .rank-number { position: absolute; left: 10px; bottom: -10px; font-size: 64px; font-weight: 900; color: rgba(255,255,255,0.15); line-height: 1; font-style: italic; z-index: 2; }
-        .vip-tag { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); color: #ffaa00; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; z-index: 2; }
-        .card-details { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; position: relative; z-index: 3; }
-        .card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; color: #fff; line-height: 1.3; }
+        /* Grid Layout */
+        .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .show-card { background: #1a1b24; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; cursor: pointer; }
+        .show-card img { width: 100%; aspect-ratio: 1/1.2; object-fit: cover; }
+        .card-details { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
         .card-tag { font-size: 11px; color: #ff5500; font-weight: 700; }
-        .card-actions { display: flex; gap: 5px; margin-top: 10px; }
-        .card-actions .btn { padding: 6px; font-size: 12px; }
 
-        /* प्लेयर व्यू */
-        #player-view { display: none; background: #1a1b24; padding: 25px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); text-align: center; }
-        .player-cover-large { width: 220px; height: 220px; border-radius: 20px; object-fit: cover; margin: 15px auto; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.1); }
-        .btn { background: #ff5500; color: white; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+        /* Button UI Elements */
+        .btn { background: #ff5500; color: white; border: none; padding: 12px 16px; border-radius: 12px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 14px; transition: 0.2s; }
         .btn-secondary { background: rgba(255,255,255,0.08); color: #fff; }
+        .btn-block { width: 100%; margin-top: 10px; }
+        .btn-ad { background: #0088cc; }
+        .btn-premium { background: #ff9900; color: #000; }
 
-        /* बॉटम नेविगेशन बार */
-        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: rgba(26, 27, 36, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 12px 10px; border-top: 1px solid rgba(255,255,255,0.05); z-index: 999; box-shadow: 0 -5px 20px rgba(0,0,0,0.3); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #7a7e8c; text-decoration: none; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.2s; background: none; border: none; }
-        .nav-item i { font-size: 18px; }
+        /* Form Controls */
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; font-size: 13px; color: #aaa; margin-bottom: 6px; font-weight: 600; }
+        .form-control { width: 100%; background: #12131a; border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 10px; color: white; font-size: 14px; outline: none; }
+        .form-control:focus { border-color: #ff9900; }
+
+        /* Plan UI */
+        .plan-card { background: #1a1b24; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; margin-bottom: 15px; text-align: left; }
+        .plan-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+        .plan-price { font-size: 24px; font-weight: 800; color: #ff9900; margin-bottom: 10px; }
+
+        /* Navigation Bar */
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: #1a1b24; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.05); z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #7a7e8c; background: none; border: none; font-size: 11px; font-weight: bold; cursor: pointer; }
         .nav-item.active { color: #ff5500; }
-
-        /* डायनामिक स्क्रीन व्यूज */
+        
         .screen { display: none; }
         .screen.active { display: block; }
+        .admin-section { background: #1a1b24; padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- Header Dashboard -->
     <div class="top-header">
         <div class="brand-logo">AC <span>PREMIUM</span></div>
-        <div class="top-badges">
-            <button class="badge-btn console" onclick="switchScreen('admin-panel')"><i class="fa-solid : user-gear"></i> Console</button>
-            <div class="badge-btn"><i class="fa-solid fa-ban"></i> PASS EXPIRED</div>
-        </div>
+        <div id="vip-badge" class="vip-status-badge"><i class="fa-solid fa-star"></i> FREE USER</div>
     </div>
 
+    <!-- ================= SCREEN 1: HOME SCREEN ================= -->
     <div id="home-screen" class="screen active">
-        <div id="main-banner" class="featured-banner" style="background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500');">
-            <div class="banner-content">
-                <span class="tag-trending"><i class="fa-solid fa-fire"></i> Trending Stage</span>
-                <h2 id="banner-title" class="banner-title">स्टोरी लोड हो रही है...</h2>
-                <div class="banner-meta">
-                    <span>Premium Pack</span> • <span>Dedicated Series</span>
-                </div>
-            </div>
+        <!-- 5-Banner Image Carousel Sliders -->
+        <div class="carousel-container" id="carousel-wrapper">
+            <!-- Dynamic slides will populate here -->
         </div>
 
-        <div class="category-scroll">
-            <button class="cat-btn active" onclick="filterCategory('all', this)"><i class="fa-solid fa-border-all"></i> All Premium Shows</button>
-            <button class="cat-btn" onclick="filterCategory('Romance', this)"><i class="fa-solid fa-heart"></i> Romance</button>
-            <button class="cat-btn" onclick="filterCategory('Thriller', this)"><i class="fa-solid fa-eye"></i> Thriller</button>
-            <button class="cat-btn" onclick="filterCategory('Horror', this)"><i class="fa-solid fa-ghost"></i> Horror</button>
-        </div>
-
-        <div class="section-title">Top Trending Series</div>
-        <div id="stories-grid" class="grid-container">
-            </div>
+        <h3 style="margin-bottom: 15px; font-size: 15px; letter-spacing: 0.5px; color: #aaa;"><i class="fa-solid fa-fire" style="color:#ff5500;"></i> TOP TRENDING SERIES</h3>
+        <div id="stories-grid" class="grid-container"></div>
     </div>
 
+    <!-- ================= SCREEN 2: PLAYER / AUDIO CONTAINER ================= -->
     <div id="player-screen" class="screen">
-        <div id="player-view">
-            <button class="btn btn-secondary" onclick="switchScreen('home-screen')" style="padding: 6px 12px; font-size:12px; float:left;"><i class="fa-solid fa-arrow-left"></i> बैक</button>
+        <div style="background: #1a1b24; padding: 20px; border-radius: 20px; text-align: center;">
+            <button class="btn btn-secondary" onclick="switchScreen('home-screen')" style="padding: 6px 12px; font-size:12px; float:left;"><i class="fa-solid fa-arrow-left"></i> Back</button>
             <div style="clear:both;"></div>
-            <img id="player-cover" class="player-cover-large" src="" alt="Cover">
-            <h3 id="player-title" style="margin-bottom: 6px;">स्टोरी का नाम</h3>
-            <p id="player-tag" class="card-tag" style="font-size:14px; margin-bottom:15px;"></p>
-            
-            <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; font-size: 12px; color:#888; margin-bottom:20px; border: 1px solid rgba(255,255,255,0.05);">
-                <i class="fa-solid fa-key" style="color:#0088cc;"></i> File ID: <span id="player-file-id" style="color:#fff;"></span>
-            </div>
-            <button class="btn" style="width:100%; padding:14px; font-size:16px;"><i class="fa-solid fa-circle-play"></i> अभी प्ले करें</button>
+            <img id="player-cover" style="width:180px; height:180px; border-radius:16px; object-fit:cover; margin:15px 0; box-shadow: 0 8px 20px rgba(0,0,0,0.5);" src="" alt="">
+            <h3 id="player-title" style="margin-bottom:15px;">Show Title</h3>
+            <div id="link-container"></div>
         </div>
     </div>
 
-    <div id="explore-screen" class="screen" style="text-align:center; padding:40px 10px;">
-        <h3><i class="fa-solid fa-compass"></i> Explore Shows</h3>
-        <p style="color:#666; margin-top:10px;">नई और फ्रेश स्टोरीज खोजने का सेक्शन जल्द आ रहा है।</p>
+    <!-- ================= SCREEN 3: VIP PASS MEMBERSHIPS ================= -->
+    <div id="vip-screen" class="screen">
+        <h2 style="text-align: center; margin-bottom: 20px; color: #ff9900;"><i class="fa-solid fa-crown"></i> Select VIP Membership Plan</h2>
+        <div class="plan-card">
+            <div class="plan-title">7 Days Pass (Weekly)</div>
+            <div class="plan-price">₹15</div>
+            <button class="btn btn-block" onclick="openPayment(15, '7 Days')">Purchase Now</button>
+        </div>
+        <div class="plan-card" style="border-color: #ff9900;">
+            <div class="plan-title">15 Days Pass (Semi-Monthly)</div>
+            <div class="plan-price">₹25</div>
+            <button class="btn btn-block" onclick="openPayment(25, '15 Days')">Purchase Now</button>
+        </div>
+        <div class="plan-card">
+            <div class="plan-title">30 Days Pass (Monthly Plan)</div>
+            <div class="plan-price">₹50</div>
+            <button class="btn btn-block" onclick="openPayment(50, '30 Days')">Purchase Now</button>
+        </div>
     </div>
 
-    <div id="vip-screen" class="screen" style="text-align:center; padding:40px 10px;">
-        <h3><i class="fa-solid fa-gem" style="color:#ffaa00;"></i> VIP PASS</h3>
-        <p style="color:#666; margin-top:10px;">प्रीमियम मेंबरशिप अनलॉक करने का फीचर शेड्यूल है।</p>
+    <!-- ================= SCREEN 4: PAYMENT LINK EXECUTION ================= -->
+    <div id="payment-screen" class="screen" style="text-align: center;">
+        <div style="background:#1a1b24; padding:25px; border-radius:20px;">
+            <h3>💳 UPI Secure Gateway</h3>
+            <p style="margin: 15px 0; color:#aaa;">Amount Payable: <span id="pay-amount" style="color:#ff9900; font-weight:bold;"></span></p>
+            <a id="upi-pay-link" href="#" class="btn btn-premium btn-block" style="background:#00cc66; color:#fff; padding:14px;"><i class="fa-solid fa-mobile-screen-button"></i> Pay via UPI App</a>
+            <button class="btn btn-secondary btn-block" onclick="switchScreen('vip-screen')" style="margin-top:10px;">Cancel Transaction</button>
+        </div>
     </div>
 
-    <div id="profile-screen" class="screen" style="text-align:center; padding:40px 10px;">
-        <h3><i class="fa-solid fa-user"></i> My Profile</h3>
-        <p id="user-name" style="margin-top:10px; font-weight:bold; color:#ff5500;">User</p>
-    </div>
+    <!-- ================= SCREEN 5: ADMIN FULL CONTROL PANEL ================= -->
+    <div id="admin-screen" class="screen">
+        <h2 style="margin-bottom: 20px; color:#ff9900;"><i class="fa-solid fa-user-gear"></i> Control Engine</h2>
+        
+        <!-- Tab 1: Content Creator Form -->
+        <div class="admin-section">
+            <h4 style="margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; color:#ff5500;"><i class="fa-solid fa-folder-plus"></i> Upload New Story</h4>
+            <div class="form-group"><label>Story Title</label><input type="text" id="adm-title" class="form-control" placeholder="e.g., Ek Ishq Ek Junoon"></div>
+            <div class="form-group"><label>Cover Photo Image URL</label><input type="text" id="adm-cover" class="form-control" placeholder="https://image-url.com/pic.jpg"></div>
+            <div class="form-group"><label>Category Tag</label><input type="text" id="adm-tag" class="form-control" placeholder="Romance / Thriller / Horror"></div>
+            <div class="form-group"><label>Original Link (For Premium Users Only)</label><input type="text" id="adm-simple" class="form-control" placeholder="Direct Telegram / Drive Video Link"></div>
+            <div class="form-group"><label>Ad-Shortener Link (For Free Users)</label><input type="text" id="adm-ad" class="form-control" placeholder="https://gplinks.co/xyz"></div>
+            <button class="btn btn-block" onclick="submitStory()"><i class="fa-solid fa-cloud-arrow-up"></i> Push Story to Database</button>
+        </div>
 
-    <div id="admin-panel" class="screen" style="text-align:center; padding:20px 10px;">
-        <h3><i class="fa-solid fa-user-gear"></i> Admin Console</h3>
-        <p style="color:#666; font-size:13px; margin-bottom:15px;">बॉट में सीधे इस कमांड का इस्तेमाल करके स्टोरीज अपलोड करें:</p>
-        <code style="background:#1e2029; display:block; padding:12px; border-radius:8px; font-size:11px; color:#ffaa00; word-break:break-all; text-align:left;">
-            /add_story नाम | पोस्टर लिंक | कैटेगरी | टेलीग्राम फाइल आईडी
-        </code>
-        <button class="btn btn-secondary" onclick="switchScreen('home-screen')" style="margin-top:20px;">वापस होम पर जाएं</button>
+        <!-- Tab 2: 5-Banner Customization Matrix -->
+        <div class="admin-section">
+            <h4 style="margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; color:#ffaa00;"><i class="fa-solid fa-images"></i> Slider Management (Top 5 Banners)</h4>
+            <div id="banner-inputs-container">
+                <!-- 5 Dynamic Input Rows generated via JavaScript -->
+            </div>
+            <button class="btn btn-block btn-premium" onclick="saveBanners()"><i class="fa-solid fa-floppy-disk"></i> Update Carousel Banners</button>
+        </div>
     </div>
-
 </div>
 
+<!-- Global Navigation Footer Bar -->
 <div class="bottom-nav">
     <button class="nav-item active" onclick="switchScreen('home-screen', this)"><i class="fa-solid fa-house"></i>HOME</button>
-    <button class="nav-item" onclick="switchScreen('explore-screen', this)"><i class="fa-solid fa-compass"></i>EXPLORE</button>
-    <button class="nav-item" onclick="switchScreen('vip-screen', this)"><i class="fa-solid fa-gem"></i>VIP PASS</button>
-    <button class="nav-item" onclick="switchScreen('profile-screen', this)"><i class="fa-solid fa-user"></i>PROFILE</button>
-    <button class="nav-item" onclick="switchScreen('admin-panel', this)"><i class="fa-solid fa-user-gear"></i>ADMIN</button>
+    <button class="nav-item" onclick="switchScreen('vip-screen', this)"><i class="fa-solid fa-crown"></i>VIP PASS</button>
+    <button class="nav-item" onclick="switchScreen('admin-screen', this)"><i class="fa-solid fa-user-gear"></i>ADMIN</button>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+    tg.ready(); tg.expand();
 
     const API_URL = window.location.origin;
-    let BOT_USERNAME = "YourBotUsername"; 
-    let APP_SHORT_NAME = "app"; 
-    let allStoriesData = []; // सारे डेटा को स्टोर रखने के लिए
+    let isVipUser = false; 
+    let allStories = [];
+    let currentSlideIndex = 0;
 
-    // ऐप लोड लॉजिक
+    // Change your static UPI configuration details here
+    const MERCHANT_UPI_ID = "your-upi-id@ybl";
+
+    // Standard Mock Data Setup for Top 5 banners
+    let defaultBanners = [
+        { title: "Ek Ishq Ek Junoon", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500" },
+        { title: "Secret Billionaire", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500" },
+        { title: "The Dark Night Story", image: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500" },
+        { title: "Vampire Returns", image: "https://images.unsplash.com/photo-1516339901601-2e1d62dc0c45?w=500" },
+        { title: "Love in Paris", image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=500" }
+    ];
+
     window.addEventListener('load', async () => {
-        // टेलीग्राम यूजरनेम प्रोफाइल में सेट करना
-        if(tg.initDataUnsafe?.user?.first_name) {
-            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
-        }
-
-        // बॉट कॉन्फ़िग लाना
-        try {
-            const configRes = await fetch(`${API_URL}/api/config`);
-            const config = await configRes.json();
-            BOT_USERNAME = config.botUsername;
-            APP_SHORT_NAME = config.appShortName;
-        } catch(e) { console.error("Config fetch error"); }
-
-        // स्टोरीज लोड करना
-        await loadAllStories();
-
-        // डीप लिंकिंग (यूनिक लिंक) चेक करना
-        const startParam = tg.initDataUnsafe?.start_param;
-        if (startParam && startParam.startsWith('story_')) {
-            const mongoId = startParam.replace('story_', '');
-            loadSingleStory(mongoId);
-        }
+        setupAdminBannerFields();
+        renderCarousel();
+        startCarouselTimer();
+        await loadStories();
     });
 
-    // स्क्रीन बदलने का फंक्शन (बॉटम नेविगेशन के लिए)
+    // Populate configurations inside the Admin panel setup
+    function setupAdminBannerFields() {
+        const container = document.getElementById('banner-inputs-container');
+        container.innerHTML = '';
+        defaultBanners.forEach((b, i) => {
+            container.innerHTML += `
+                <div style="margin-bottom:12px; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px;">
+                    <strong style="font-size:11px; color:#ff9900;">BANNER SLOT 0${i+1}</strong>
+                    <input type="text" id="bm-title-${i}" class="form-control" style="margin:5px 0;" value="${b.title}" placeholder="Banner Title">
+                    <input type="text" id="bm-img-${i}" class="form-control" value="${b.image}" placeholder="Image URL">
+                </div>
+            `;
+        });
+    }
+
+    // Build Banner Carousel structure
+    function renderCarousel() {
+        const wrapper = document.getElementById('carousel-wrapper');
+        wrapper.innerHTML = '';
+        
+        let slidesHtml = '';
+        let dotsHtml = '<div class="carousel-dots">';
+        
+        defaultBanners.forEach((b, i) => {
+            slidesHtml += `
+                <div class="carousel-slide ${i === 0 ? 'active' : ''}" style="background-image: url('${b.image}');">
+                    <div class="banner-content">
+                        <span class="tag-trending"><i class="fa-solid fa-fire"></i> Trending Stage</span>
+                        <h2 class="banner-title">${b.title}</h2>
+                    </div>
+                </div>
+            `;
+            dotsHtml += `<span class="dot ${i === 0 ? 'active' : ''}"></span>`;
+        });
+        dotsHtml += '</div>';
+        wrapper.innerHTML = slidesHtml + dotsHtml;
+    }
+
+    // Carousel Automated Rotator Engine
+    function startCarouselTimer() {
+        setInterval(() => {
+            const slides = document.querySelectorAll('.carousel-slide');
+            const dots = document.querySelectorAll('.dot');
+            if(!slides.length) return;
+
+            slides[currentSlideIndex].classList.remove('active');
+            dots[currentSlideIndex].classList.remove('active');
+            
+            currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+            
+            slides[currentSlideIndex].classList.add('active');
+            dots[currentSlideIndex].classList.add('active');
+        }, 4000);
+    }
+
+    // Update Banner state globally
+    function saveBanners() {
+        for(let i=0; i<5; i++) {
+            defaultBanners[i].title = document.getElementById(`bm-title-${i}`).value;
+            defaultBanners[i].image = document.getElementById(`bm-img-${i}`).value;
+        }
+        renderCarousel();
+        alert('🎯 All 5 Banners modified inside the active session context successfully!');
+    }
+
+    // Dynamic UI Screen router configuration 
     function switchScreen(screenId, element = null) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
-
         if(element) {
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             element.classList.add('active');
         }
     }
 
-    // डेटाबेस से स्टोरीज लाना
-    async function loadAllStories() {
+    // Fetch operational records from Database
+    async function loadStories() {
         try {
             const res = await fetch(`${API_URL}/api/stories`);
-            allStoriesData = await res.json();
+            allStories = await res.json();
             
-            // मुख्य बैनर को पहली लेटेस्ट स्टोरी से अपडेट करना
-            if(allStoriesData.length > 0) {
-                document.getElementById('main-banner').style.backgroundImage = `url('${allStoriesData[0].cover}')`;
-                document.getElementById('banner-title').innerText = allStoriesData[0].title;
-                // बैनर पर क्लिक करने पर वही स्टोरी खुल जाए
-                document.getElementById('main-banner').onclick = () => loadSingleStory(allStoriesData[0]._id);
-            }
-            
-            renderGrid(allStoriesData);
-        } catch (err) { 
-            document.getElementById('stories-grid').innerHTML = '<p>डेटा लोड एरर</p>'; 
-        }
+            const grid = document.getElementById('stories-grid');
+            grid.innerHTML = '';
+            allStories.forEach(story => {
+                grid.innerHTML += `
+                    <div class="show-card" onclick="openPlayer('${story._id}')">
+                        <img src="${story.cover}" alt="Poster">
+                        <div class="card-details">
+                            <h4 class="card-title">${story.title}</h4>
+                            <span class="card-tag">${story.tag}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch(e) { console.error("Data synchronization error across API layers"); }
     }
 
-    // ग्रिड में कार्ड्स शो करना (रैंक नंबर के साथ)
-    function renderGrid(stories) {
-        const gridDiv = document.getElementById('stories-grid');
-        gridDiv.innerHTML = '';
+    // Push new entry straight into MongoDB via API request mapping
+    async function submitStory() {
+        const title = document.getElementById('adm-title').value;
+        const cover = document.getElementById('adm-cover').value;
+        const tag = document.getElementById('adm-tag').value;
+        const simple_link = document.getElementById('adm-simple').value;
+        const ad_link = document.getElementById('adm-ad').value;
 
-        if(stories.length === 0) {
-            gridDiv.innerHTML = '<p style="color:#666; grid-column: 1/3; text-align:center; padding:20px;">कोई शो उपलब्ध नहीं है</p>';
+        if(!title || !cover || !tag || !simple_link || !ad_link) {
+            alert('⚠️ Please fill out all configuration parameters!');
             return;
         }
 
-        stories.forEach((story, index) => {
-            gridDiv.innerHTML += `
-                <div class="show-card">
-                    <div class="card-img-wrapper" onclick="loadSingleStory('${story._id}')">
-                        <span class="vip-tag"><i class="fa-solid fa-crown"></i> VIP</span>
-                        <img src="${story.cover}" alt="cover">
-                        <span class="rank-number">${index + 1}</span>
-                    </div>
-                    <div class="card-details">
-                        <div>
-                            <h4 class="card-title" onclick="loadSingleStory('${story._id}')">${story.title}</h4>
-                            <span class="card-tag">${story.tag}</span>
-                        </div>
-                        <div class="card-actions">
-                            <button class="btn" style="padding:6px 10px; flex:1;" onclick="loadSingleStory('${story._id}')"><i class="fa-solid fa-play"></i></button>
-                            <button class="btn btn-secondary" style="padding:6px 10px;" onclick="shareLink('${story._id}')"><i class="fa-solid fa-share-nodes"></i></button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    // कैटेगरी फ़िल्टर
-    function filterCategory(category, btnElement) {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btnElement.classList.add('active');
-
-        if(category === 'all') {
-            renderGrid(allStoriesData);
-        } else {
-            const filtered = allStoriesData.filter(s => s.tag.toLowerCase() === category.toLowerCase());
-            renderGrid(filtered);
-        }
-    }
-
-    // सिंगल स्टोरी (प्लेयर व्यू) लोड करना
-    async function loadSingleStory(id) {
         try {
-            const res = await fetch(`${API_URL}/api/story/${id}`);
-            const story = await res.json();
+            const res = await fetch(`${API_URL}/api/stories`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, cover, tag, simple_link, ad_link })
+            });
 
-            switchScreen('player-screen');
+            if(res.ok) {
+                alert('🚀 Story saved successfully into MongoDB cluster!');
+                // Reset form fields
+                document.getElementById('adm-title').value = '';
+                document.getElementById('adm-cover').value = '';
+                document.getElementById('adm-simple').value = '';
+                document.getElementById('adm-ad').value = '';
+                await loadStories();
+                switchScreen('home-screen');
+            }
+        } catch(e) { alert('Failed processing server API push operations.'); }
+    }
 
-            document.getElementById('player-title').innerText = story.title;
-            document.getElementById('player-cover').src = story.cover;
-            document.getElementById('player-tag').innerText = "Genre: " + story.tag;
-            document.getElementById('player-file-id').innerText = story.telegram_file_id;
-        } catch (err) { 
-            alert('स्टोरी लोड करने में असमर्थ!');
+    // User content authentication distribution filter
+    function openPlayer(id) {
+        const story = allStories.find(s => s._id === id);
+        if(!story) return;
+
+        switchScreen('player-screen');
+        document.getElementById('player-title').innerText = story.title;
+        document.getElementById('player-cover').src = story.cover;
+
+        const container = document.getElementById('link-container');
+        container.innerHTML = '';
+
+        if(isVipUser) {
+            container.innerHTML = `
+                <p style="color:#00cc66; font-size:13px; margin-bottom:12px;"><i class="fa-solid fa-unlock"></i> Premium Unlocked Account Active</p>
+                <a href="${story.simple_link}" target="_blank" class="btn btn-premium btn-block"><i class="fa-solid fa-circle-play"></i> Watch Stream (No Ads)</a>
+            `;
+        } else {
+            container.innerHTML = `
+                <p style="color:#aaa; font-size:12px; margin-bottom:12px;"><i class="fa-solid fa-lock"></i> Free account contains dynamic link restrictions.</p>
+                <a href="${story.ad_link}" target="_blank" class="btn btn-ad btn-block"><i class="fa-solid fa-rectangle-ad"></i> Stream with Ad-Access</a>
+            `;
         }
     }
 
-    // पॉकेट एफएम जैसी यूनीक शेयर लिंक
-    function shareLink(mongoId) {
-        const uniqueLink = `https://t.me/${BOT_USERNAME}/${APP_SHORT_NAME}?startapp=story_${mongoId}`;
-        navigator.clipboard.writeText(uniqueLink);
-        
-        if (tg.showPopup) {
-            tg.showPopup({
-                title: 'लिंक कॉपी हो गई! 🔗',
-                message: 'पॉकेट एफएम स्टाइल यूनीक लिंक कॉपी हो चुकी है। इसे अपने दोस्तों या ग्रुप में शेयर करें!',
-                buttons: [{type: 'ok'}]
-            });
-        } else {
-            alert('कॉपी हुई लिंक: ' + uniqueLink);
-        }
+    function openPayment(amount, plan) {
+        switchScreen('payment-screen');
+        document.getElementById('pay-amount').innerText = "INR " + amount;
+        document.getElementById('upi-pay-link').href = `upi://pay?pa=${MERCHANT_UPI_ID}&pn=AC_Premium&am=${amount}&cu=INR&tn=VIP_${plan}`;
     }
 </script>
 </body>
