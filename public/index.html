@@ -3,206 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AC Premium - Marketplace</title>
+    <title>Arya | PREMIUM</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: #0f1014; color: #ffffff; padding-bottom: 90px; }
+        /* CSS Variables for Dynamic Theme Switching */
+        :root {
+            --bg-color: #0f1014;
+            --card-bg: #1a1b24;
+            --text-main: #ffffff;
+            --text-muted: #7a7e8c;
+            --text-desc: #aaa;
+            --border-color: rgba(255,255,255,0.05);
+            --input-bg: #12131a;
+            --input-border: rgba(255,255,255,0.1);
+            --header-logo: #ffffff;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f4f5f9;
+            --card-bg: #ffffff;
+            --text-main: #12131a;
+            --text-muted: #8a8e9d;
+            --text-desc: #4f525e;
+            --border-color: rgba(0,0,0,0.08);
+            --input-bg: #fdfdfd;
+            --input-border: rgba(0,0,0,0.12);
+            --header-logo: #12131a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; transition: background 0.3s, color 0.3s; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 90px; }
         .container { max-width: 500px; margin: auto; padding: 15px; }
 
-        /* Header Style */
+        /* Global Top Header */
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .brand-logo { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; }
+        .brand-logo { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; color: var(--header-logo); }
         .brand-logo span { background: #ff9900; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
-        .top-actions { display: flex; gap: 10px; }
-        .btn-console { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: #ff8888; font-size: 11px; padding: 4px 10px; border-radius: 15px; font-weight: 600; }
+        .btn-console { background: rgba(255,255,255,0.08); border: 1px solid var(--border-color); color: #ff8888; font-size: 11px; padding: 4px 10px; border-radius: 15px; font-weight: 600; }
 
-        /* Top 5 Banner Slider */
+        /* Top 5 Banner Sliders */
         .carousel-container { position: relative; width: 100%; height: 230px; border-radius: 24px; overflow: hidden; margin-bottom: 20px; }
         .carousel-slide { display: none; width: 100%; height: 100%; background-size: cover; background-position: center; flex-direction: column; justify-content: flex-end; padding: 20px; position: relative; }
         .carousel-slide.active { display: flex; }
-        .carousel-slide::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #0f1014 25%, transparent 100%); z-index: 1; }
+        .carousel-slide::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg-color) 25%, transparent 100%); z-index: 1; }
         .banner-content { position: relative; z-index: 2; }
         .tag-trending { background: #ff5500; color: #fff; font-size: 9px; font-weight: bold; padding: 3px 8px; border-radius: 20px; display: inline-block; margin-bottom: 5px; text-transform: uppercase; }
-        .banner-title { font-size: 22px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .banner-title { font-size: 22px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.6); }
 
-        /* Filter Categories */
+        /* Categories Scroll */
         .category-scroll { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 20px; padding-bottom: 5px; }
         .category-scroll::-webkit-scrollbar { display: none; }
-        .cat-chip { background: #1a1b24; color: #aaa; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; border: 1px solid transparent; cursor: pointer; }
-        .cat-chip.active { background: #ff5500; color: #fff; }
+        .cat-chip { background: var(--card-bg); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; border: 1px solid var(--border-color); }
+        .cat-chip.active { background: #ff5500; color: #fff; border-color: #ff5500; }
 
-        /* Grid Item Layout */
-        .section-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* Grid System */
+        .section-title { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
         .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .show-card { background: #1a1b24; border-radius: 16px; overflow: hidden; position: relative; cursor: pointer; }
+        .show-card { background: var(--card-bg); border-radius: 16px; overflow: hidden; position: relative; cursor: pointer; border: 1px solid var(--border-color); }
         .show-card img { width: 100%; aspect-ratio: 1/1.2; object-fit: cover; }
         .card-details { padding: 10px; }
-        .card-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
         .card-price { font-size: 12px; color: #ff5500; font-weight: 700; }
 
-        /* Premium Detail Page View */
+        /* Product Detail Layout */
         .detail-header { position: relative; width: 100%; height: 260px; background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 20px; }
-        .detail-header::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #0f1014 100%, transparent); opacity: 0.8; }
-        .detail-header::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, #0f1014 15%, transparent); }
+        .detail-header::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg-color) 100%, transparent); opacity: 0.7; }
+        .detail-header::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg-color) 15%, transparent); }
         .detail-meta-box { position: relative; z-index: 2; width: 100%; }
         
-        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; background: #1a1b24; padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; background: var(--card-bg); padding: 15px; border-radius: 16px; border: 1px solid var(--border-color); }
         .stat-item { text-align: center; }
-        .stat-label { font-size: 10px; color: #7a7e8c; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; }
-        .stat-value { font-size: 14px; font-weight: 700; color: #fff; }
+        .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+        .stat-value { font-size: 14px; font-weight: 700; color: var(--text-main); }
+        .desc-text { font-size: 13px; color: var(--text-desc); line-height: 1.6; margin-bottom: 20px; }
+        .action-bar-fixed { position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: var(--card-bg); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); z-index: 99; }
 
-        .desc-text { font-size: 13px; color: #aaa; line-height: 1.6; margin-bottom: 20px; }
-        .action-bar-fixed { position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: #1a1b24; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); z-index: 99; }
+        /* Checkout Banner Feature */
+        .checkout-banner { width: 100%; height: 160px; border-radius: 20px; background-size: cover; background-position: center; margin-bottom: 15px; position: relative; overflow: hidden; border: 1px solid var(--border-color); }
+        .checkout-banner::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8) 40%, transparent); }
+        .checkout-banner-title { position: absolute; bottom: 15px; left: 15px; color: #fff; font-size: 18px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 
-        /* Secure UPI Screen Layout */
-        .upi-modal-content { background: #1a1b24; padding: 25px; border-radius: 24px; text-align: center; border: 1px solid rgba(255,255,255,0.1); margin-top: 30px; }
-        .upi-badge-icon { width: 60px; height: 60px; background: rgba(0,204,102,0.1); color: #00cc66; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; font-size: 24px; }
+        /* Profile Card Design */
+        .profile-card { background: var(--card-bg); border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .profile-avatar { width: 70px; height: 70px; background: #ff5500; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; margin: 0 auto 12px auto; color: #fff; }
+        .profile-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--text-main); }
+        .profile-meta { font-size: 12px; color: var(--text-muted); }
+        .admin-trigger-btn { background: #ff9900; color: #000; font-weight: bold; border: none; padding: 12px; border-radius: 12px; width: 100%; margin-top: 15px; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 8px; }
+
+        /* Checkout Gateway Box */
+        .checkout-box { background: var(--card-bg); border-radius: 24px; padding: 20px; border: 1px solid var(--border-color); }
+        .summary-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-desc); margin-bottom: 10px; }
+        .summary-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; color: var(--text-main); padding-top: 12px; border-top: 1px dashed var(--border-color); margin-bottom: 25px; }
+        
+        .upi-apps-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .upi-app-btn { display: flex; align-items: center; gap: 15px; background: var(--input-bg); border: 1px solid var(--input-border); padding: 14px 20px; border-radius: 16px; color: var(--text-main); font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; }
+        .upi-app-btn:active { background: rgba(255,85,0,0.1); border-color: #ff5500; }
+        .icon-gpay { color: #4285F4; }
+        .icon-phonepe { color: #5f259f; }
+        .icon-paytm { color: #00baf2; }
 
         /* Buttons & Forms */
-        .btn { background: #ff5500; color: white; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; justify-content: center; }
+        .btn { background: #ff5500; color: white; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; justify-content: center; text-decoration: none; }
         .btn-block { width: 100%; }
-        .btn-secondary { background: rgba(255,255,255,0.08); color: #fff; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; color: #aaa; margin-bottom: 5px; font-weight: 600; }
-        .form-control { width: 100%; background: #12131a; border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 10px; color: white; font-size: 13px; outline: none; }
+        .form-control { width: 100%; background: var(--input-bg); border: 1px solid var(--input-border); padding: 12px; border-radius: 10px; color: var(--text-main); font-size: 13px; outline: none; margin-top: 5px; }
 
-        /* Navbar */
-        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: #1a1b24; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.05); z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #7a7e8c; background: none; border: none; font-size: 10px; font-weight: bold; cursor: pointer; width: 20%; }
+        /* Bottom Navbar */
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid var(--border-color); z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); background: none; border: none; font-size: 10px; font-weight: bold; cursor: pointer; width: 25%; }
         .nav-item i { font-size: 18px; }
         .nav-item.active { color: #ff5500; }
         
         .screen { display: none; }
         .screen.active { display: block; }
-        .empty-state { text-align: center; padding: 60px 20px; color: #666; }
-        .empty-state i { font-size: 48px; margin-bottom: 15px; color: #222; }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- Top Global Header -->
     <div class="top-header" id="global-header">
-        <div class="brand-logo">AC <span>PREMIUM</span></div>
+        <div class="brand-logo">Arya | <span>PREMIUM</span></div>
         <div class="top-actions">
             <span class="btn-console"><i class="fa-solid fa-bolt"></i> PASS EXPIRED</span>
         </div>
     </div>
 
+    <!-- ================= 1. HOME SCREEN ================= -->
     <div id="home-screen" class="screen active">
         <div class="carousel-container" id="carousel-wrapper"></div>
-
         <div class="category-scroll">
             <span class="cat-chip active">All Premium Shows</span>
             <span class="cat-chip">💕 Romance</span>
             <span class="cat-chip">👁️ Thriller</span>
             <span class="cat-chip">🔥 Action</span>
         </div>
-
         <h3 class="section-title">🔥 Top Trending Series</h3>
         <div id="stories-grid" class="grid-container"></div>
     </div>
 
+    <!-- ================= 2. EXPLORE SCREEN ================= -->
     <div id="explore-screen" class="screen">
-        <div style="margin-bottom:20px;">
-            <input type="text" id="search-bar" class="form-control" placeholder="🔍 Search premium audiobooks..." oninput="filterSearch()">
-        </div>
-        <h3 class="section-title">Discover All Content</h3>
+        <input type="text" id="search-bar" class="form-control" placeholder="🔍 Search premium audiobooks..." oninput="filterSearch()">
+        <h3 class="section-title" style="margin-top:20px;">Discover All Content</h3>
         <div id="explore-grid" class="grid-container"></div>
     </div>
 
+    <!-- ================= 3. CART SCREEN ================= -->
     <div id="cart-screen" class="screen">
-        <div class="empty-state">
-            <i class="fa-solid fa-basket-shopping"></i>
-            <p>Your cart is empty</p>
-            <button class="btn" style="margin-top:15px; font-size:12px;" onclick="switchScreen('home-screen')">Go Home</button>
+        <div class="empty-state"><i class="fa-solid fa-basket-shopping" style="font-size:40px; margin-bottom:10px;"></i><p>Your cart is empty</p></div>
+    </div>
+
+    <!-- ================= 4. PROFILE SCREEN (WITH THEME TOGGLE) ================= -->
+    <div id="profile-screen" class="screen">
+        <h3 class="section-title">My Account</h3>
+        <div class="profile-card">
+            <div class="profile-avatar" id="user-avatar-letter">U</div>
+            <div class="profile-name" id="user-display-name">Telegram User</div>
+            <div class="profile-meta" id="user-display-id">ID: -------</div>
+            
+            <button id="admin-secret-btn" class="admin-trigger-btn" onclick="switchScreen('admin-screen')">
+                <i class="fa-solid fa-user-shield"></i> Open Admin Console
+            </button>
+        </div>
+
+        <div style="background: var(--card-bg); border-radius: 16px; padding: 10px; border: 1px solid var(--border-color)">
+            <!-- Dynamic Theme Mode Feature Row -->
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid var(--border-color); font-size:14px; cursor:pointer;" onclick="toggleThemeMode()">
+                <span><i class="fa-solid fa-circle-half-stroke" style="color:#0088cc; margin-right:10px;"></i> Switch App Theme</span>
+                <span id="theme-status-text" style="font-size:12px; font-weight:bold; color:#ff5500;">Dark Mode</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid var(--border-color); font-size:14px; cursor:pointer;" onclick="switchScreen('library-screen')">
+                <span><i class="fa-solid fa-folder-open" style="color:#ff5500; margin-right:10px;"></i> My Library Packs</span>
+                <i class="fa-solid fa-chevron-right" style="color:var(--text-muted);"></i>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:12px; font-size:14px;">
+                <span><i class="fa-solid fa-headset" style="color:#00cc66; margin-right:10px;"></i> Contact Support</span>
+                <span style="color:var(--text-muted); font-size:12px;">@AryaSupport</span>
+            </div>
         </div>
     </div>
 
+    <!-- ================= LIBRARY SCREEN ================= -->
     <div id="library-screen" class="screen">
-        <div class="empty-state">
-            <i class="fa-solid fa-folder-open"></i>
-            <p>No stories purchased yet.</p>
-        </div>
+        <button class="btn" onclick="switchScreen('profile-screen')" style="margin-bottom:15px; padding:6px 12px; font-size:12px; background:rgba(255,255,255,0.05);"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        <div class="empty-state"><i class="fa-solid fa-folder-open" style="font-size:40px; margin-bottom:10px;"></i><p>No stories purchased yet.</p></div>
     </div>
 
+    <!-- ================= PRODUCT DETAIL SCREEN ================= -->
     <div id="detail-screen" class="screen">
-        <button class="btn" onclick="switchScreen('home-screen')" style="position:absolute; top:20px; left:20px; z-index:10; padding:6px 12px; font-size:12px; background:rgba(0,0,0,0.6);"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        <button class="btn" onclick="switchScreen('home-screen')" style="position:absolute; top:20px; left:20px; z-index:10; padding:6px 12px; font-size:12px; background:rgba(0,0,0,0.6); color:white;"><i class="fa-solid fa-arrow-left"></i> Back</button>
         <div id="detail-header-bg" class="detail-header">
             <div class="detail-meta-box">
                 <span class="tag-trending" id="detail-tag">Tag</span>
-                <h2 id="detail-title" style="font-size:24px; font-weight:800; margin-bottom:5px;">Title</h2>
+                <h2 id="detail-title" style="font-size:24px; font-weight:800; color:white;">Title</h2>
             </div>
         </div>
-
         <div class="stat-grid">
-            <div class="stat-item"><div class="stat-label">Platform</div><div class="stat-value" id="detail-platform">Pocket FM</div></div>
+            <div class="stat-item"><div class="stat-label">Platform</div><div class="stat-value">Pocket FM</div></div>
             <div class="stat-item"><div class="stat-label">Episodes</div><div class="stat-value" id="detail-episodes">0</div></div>
             <div class="stat-item"><div class="stat-label">Files</div><div class="stat-value" id="detail-files">0</div></div>
         </div>
-
         <h3 style="font-size:14px; margin-bottom:8px; color:#ff5500;">CONTENT ACCESS & DELIVERY</h3>
-        <p class="desc-text" id="detail-desc">Description text goes here...</p>
-
+        <p class="desc-text" id="detail-desc">Loading...</p>
         <div class="action-bar-fixed">
-            <div>
-                <p style="font-size:11px; color:#aaa;">Total price</p>
-                <span style="font-size:20px; font-weight:800; color:#fff;" id="detail-price">₹0</span>
-            </div>
-            <button class="btn" id="buy-now-btn" onclick="triggerPurchase()"><i class="fa-solid fa-bag-shopping"></i> Buy Now</button>
+            <div><p style="font-size:11px; color:var(--text-muted);">Total price</p><span style="font-size:20px; font-weight:800;" id="detail-price">₹0</span></div>
+            <button class="btn" onclick="openCheckout()"><i class="fa-solid fa-bag-shopping"></i> Buy Now</button>
         </div>
     </div>
 
-    <div id="payment-screen" class="screen">
-        <div class="upi-modal-content">
-            <div class="upi-badge-icon"><i class="fa-solid fa-shield-halved"></i></div>
-            <h3 style="margin-bottom:5px;">UPI Secure Gateway</h3>
-            <p style="font-size:13px; color:#aaa; margin-bottom:20px;">Your transaction is encrypted and secured</p>
-            
-            <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:12px; margin-bottom:20px; text-align:left;">
-                <p style="font-size:12px; color:#7a7e8c;">PRODUCT NAME</p>
-                <p id="pay-show-title" style="font-size:14px; font-weight:bold; color:#fff; margin-bottom:10px;">Story Title</p>
-                <p style="font-size:12px; color:#7a7e8c;">AMOUNT PAYABLE</p>
-                <p id="pay-show-price" style="font-size:20px; font-weight:800; color:#ff9900;">₹0</p>
-            </div>
-
-            <a id="upi-intent-link" href="#" class="btn btn-block" style="background:#00cc66; color:#fff; margin-bottom:12px; padding:14px;"><i class="fa-solid fa-mobile-screen-button"></i> Pay via any UPI App</a>
-            <button class="btn btn-block btn-secondary" onclick="switchScreen('home-screen')">Cancel & Go Back</button>
-        </div>
-    </div>
-
-    <div id="admin-screen" class="screen">
-        <h3 class="section-title" style="color:#ff9900;"><i class="fa-solid fa-user-gear"></i> Content & Banner Console</h3>
+    <!-- ================= SECURE CHECKOUT SCREEN (WITH IMAGE BANNER) ================= -->
+    <div id="checkout-screen" class="screen">
+        <button class="btn" onclick="switchScreen('detail-screen')" style="margin-bottom:15px; padding:6px 12px; font-size:12px; background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-main);"><i class="fa-solid fa-arrow-left"></i> Back</button>
         
-        <div style="background:#1a1b24; padding:15px; border-radius:16px; margin-bottom:20px;">
-            <h4 style="font-size:13px; color:#ff5500; margin-bottom:12px;">UPLOAD NEW PACK</h4>
-            <div class="form-group"><label>Story Title</label><input type="text" id="adm-title" class="form-control" placeholder="e.g., Zero To Hero"></div>
-            <div class="form-group"><label>Cover Image URL</label><input type="text" id="adm-cover" class="form-control" placeholder="https://..."></div>
-            <div class="form-group"><label>Genre Tag</label><input type="text" id="adm-tag" class="form-control" placeholder="Romance / Action"></div>
-            <div class="form-group"><label>Price (INR)</label><input type="number" id="adm-price" class="form-control" placeholder="178"></div>
-            <div class="form-group"><label>Total Episodes</label><input type="number" id="adm-episodes" class="form-control" placeholder="1078"></div>
-            <div class="form-group"><label>Files Count</label><input type="number" id="adm-files" class="form-control" placeholder="923"></div>
-            <div class="form-group"><label>Description Summary</label><textarea id="adm-desc" class="form-control" rows="3" placeholder="Kartik's poverty earns him ridicule..."></textarea></div>
-            <div class="form-group"><label>Original Direct Link (Premium Users)</label><input type="text" id="adm-simple" class="form-control" placeholder="Direct Folder/Bot Link"></div>
-            <div class="form-group"><label>Ad Link (Free Tier)</label><input type="text" id="adm-ad" class="form-control" placeholder="Shortener link"></div>
-            <button class="btn btn-block" onclick="submitStory()"><i class="fa-solid fa-plus"></i> Save to Database</button>
+        <!-- न्यू फीचर: चेकआउट इमेज बैनर लोड फ़ील्ड -->
+        <div id="checkout-item-banner" class="checkout-banner">
+            <div id="checkout-banner-title" class="checkout-banner-title">Item Title</div>
         </div>
 
-        <div style="background:#1a1b24; padding:15px; border-radius:16px;">
-            <h4 style="font-size:13px; color:#ff9900; margin-bottom:12px;">SLIDER CAROUSEL (TOP 5 BANNERS)</h4>
-            <div id="banner-settings-box"></div>
-            <button class="btn btn-block btn-premium" style="background:#ff9900; color:#000;" onclick="saveBanners()"><i class="fa-solid fa-floppy-disk"></i> Save Banners</button>
+        <div class="checkout-box">
+            <div class="summary-row"><span id="checkout-item-name">Item Name</span><span id="checkout-item-base-price">₹0</span></div>
+            <div class="summary-row"><span>Platform Fee</span><span>₹0.00</span></div>
+            <div class="summary-total"><span>Total Payable</span><span id="checkout-item-total">₹0</span></div>
+            <div class="upi-apps-list">
+                <a id="gpay-link" href="#" class="upi-app-btn"><i class="fa-brands fa-google-pay icon-gpay"></i> Google Pay</a>
+                <a id="phonepe-link" href="#" class="upi-app-btn"><i class="fa-solid fa-wallet icon-phonepe"></i> PhonePe</a>
+                <a id="paytm-link" href="#" class="upi-app-btn"><i class="fa-solid fa-money-bill-1-wave icon-paytm"></i> Paytm</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ADMIN SCREEN ================= -->
+    <div id="admin-screen" class="screen">
+        <button class="btn" onclick="switchScreen('profile-screen')" style="margin-bottom:15px; padding:6px 12px; font-size:12px; background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-main);"><i class="fa-solid fa-arrow-left"></i> Exit Console</button>
+        <h3 class="section-title" style="color:#ff9900;"><i class="fa-solid fa-user-gear"></i> Admin Management</h3>
+        <div style="background:var(--card-bg); padding:15px; border-radius:16px; border:1px solid var(--border-color);">
+            <input type="text" id="adm-title" class="form-control" placeholder="Story Title">
+            <input type="text" id="adm-cover" class="form-control" placeholder="Cover Image URL">
+            <input type="text" id="adm-tag" class="form-control" placeholder="Genre Tag">
+            <input type="number" id="adm-price" class="form-control" placeholder="Price (INR)">
+            <input type="number" id="adm-episodes" class="form-control" placeholder="Total Episodes">
+            <input type="number" id="adm-files" class="form-control" placeholder="Files Count">
+            <textarea id="adm-desc" class="form-control" rows="3" placeholder="Description Summary..."></textarea>
+            <input type="text" id="adm-simple" class="form-control" placeholder="Direct Premium Link">
+            <input type="text" id="adm-ad" class="form-control" placeholder="Ad Shortener Link">
+            <button class="btn btn-block" style="margin-top:15px;" onclick="submitStory()"><i class="fa-solid fa-plus"></i> Push Content</button>
         </div>
     </div>
 </div>
 
+<!-- Bottom Navigation Bar -->
 <div class="bottom-nav" id="global-nav">
     <button class="nav-item active" onclick="switchScreen('home-screen', this)"><i class="fa-solid fa-house"></i>HOME</button>
     <button class="nav-item" onclick="switchScreen('explore-screen', this)"><i class="fa-solid fa-compass"></i>EXPLORE</button>
     <button class="nav-item" onclick="switchScreen('cart-screen', this)"><i class="fa-solid fa-basket-shopping"></i>CART</button>
-    <button class="nav-item" onclick="switchScreen('library-screen', this)"><i class="fa-solid fa-folder-open"></i>LIBRARY</button>
-    <button class="nav-item" onclick="switchScreen('admin-screen', this)"><i class="fa-solid fa-user-gear"></i>ADMIN</button>
+    <button class="nav-item" onclick="switchScreen('profile-screen', this)"><i class="fa-solid fa-user"></i>PROFILE</button>
 </div>
 
 <script>
@@ -214,24 +270,45 @@
     let currentSlideIndex = 0;
     let selectedStoryForView = null;
 
-    // 🎯 INTEGRATED YOUR UPI ID HERE PERMANENTLY
-    const MERCHANT_UPI_ID = "6398324472@fam";
+    const TARGET_UPI = "6398324472@fam";
 
-    // Top 5 Banner Configuration
+    // ⚙️ यहाँ अपनी असली टेलीग्राम आईडी बदलें (जैसे: 549382022)
+    const ADMIN_TELEGRAM_ID = 5898522531; 
+
     let localBanners = [
         { title: "Zero To Hero", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500" },
-        { title: "Secret Billionaire", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500" },
-        { title: "Battle Through The Heavens", image: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500" },
-        { title: "Sherdil", image: "https://images.unsplash.com/photo-1516339901601-2e1d62dc0c45?w=500" },
-        { title: "Hiss: Rebirth of Destroyer", image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=500" }
+        { title: "Secret Billionaire", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500" }
     ];
 
     window.addEventListener('load', async () => {
-        renderBannersAdmin();
+        setupTelegramUser();
         renderCarouselUI();
         startSlider();
         await loadStories();
     });
+
+    // 🎨 थीम चेंज फ़ंक्शनलिटी लॉजिक
+    function toggleThemeMode() {
+        const currentTheme = document.body.getAttribute('data-theme');
+        const targetTheme = currentTheme === 'light' ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', targetTheme);
+        document.getElementById('theme-status-text').innerText = targetTheme === 'light' ? 'Light Mode' : 'Dark Mode';
+    }
+
+    function setupTelegramUser() {
+        const user = tg.initDataUnsafe?.user;
+        if (user) {
+            document.getElementById('user-display-name').innerText = (user.first_name + " " + (user.last_name || "")).trim();
+            document.getElementById('user-display-id').innerText = "ID: " + user.id;
+            document.getElementById('user-avatar-letter').innerText = user.first_name.charAt(0).toUpperCase();
+
+            if (Number(user.id) === Number(ADMIN_TELEGRAM_ID)) {
+                document.getElementById('admin-secret-btn').style.display = 'flex';
+            }
+        } else {
+            document.getElementById('user-display-id').innerText = "ID: Web Simulator Mode";
+        }
+    }
 
     async function loadStories() {
         try {
@@ -245,19 +322,9 @@
         const homeGrid = document.getElementById('stories-grid');
         const expGrid = document.getElementById('explore-grid');
         homeGrid.innerHTML = ''; expGrid.innerHTML = '';
-
         data.forEach(s => {
-            const cardHTML = `
-                <div class="show-card" onclick="openProductPage('${s._id}')">
-                    <img src="${s.cover}">
-                    <div class="card-details">
-                        <div class="card-title">${s.title}</div>
-                        <div class="card-price">₹${s.price}</div>
-                    </div>
-                </div>
-            `;
-            homeGrid.innerHTML += cardHTML;
-            expGrid.innerHTML += cardHTML;
+            const h = `<div class="show-card" onclick="openProductPage('${s._id}')"><img src="${s.cover}"><div class="card-details"><div class="card-title">${s.title}</div><div class="card-price">₹${s.price}</div></div></div>`;
+            homeGrid.innerHTML += h; expGrid.innerHTML += h;
         });
     }
 
@@ -265,30 +332,56 @@
         const s = allStories.find(item => item._id === id);
         if(!s) return;
         selectedStoryForView = s;
-
         document.getElementById('global-header').style.display = 'none';
         document.getElementById('global-nav').style.display = 'none';
-        
         document.getElementById('detail-header-bg').style.backgroundImage = `url('${s.cover}')`;
         document.getElementById('detail-title').innerText = s.title;
         document.getElementById('detail-tag').innerText = s.tag;
         document.getElementById('detail-episodes').innerText = s.episodes;
         document.getElementById('detail-files').innerText = s.files_count;
-        document.getElementById('detail-desc').innerText = s.description || "No description provided.";
+        document.getElementById('detail-desc').innerText = s.description || "Premium audiobook pack.";
         document.getElementById('detail-price').innerText = "₹" + s.price;
-
         switchScreen('detail-screen');
     }
 
+    // 🖼️ चेकआउट पेज पर बैनर दिखाने के अपग्रेड्स के साथ
+    function openCheckout() {
+        if(!selectedStoryForView) return;
+        
+        // चेकआउट स्क्रीन पर लाइव इमेज बैनर रेंडर करना
+        document.getElementById('checkout-item-banner').style.backgroundImage = `url('${selectedStoryForView.cover}')`;
+        document.getElementById('checkout-banner-title').innerText = selectedStoryForView.title;
+
+        document.getElementById('checkout-item-name').innerText = selectedStoryForView.title;
+        document.getElementById('checkout-item-base-price').innerText = "₹" + selectedStoryForView.price;
+        document.getElementById('checkout-item-total').innerText = "₹" + selectedStoryForView.price;
+
+        const cleanTitle = selectedStoryForView.title.replace(/[^a-zA-Z0-9]/g, "");
+        const baseURI = `upi://pay?pa=${TARGET_UPI}&pn=AryaPremium&am=${selectedStoryForView.price}&cu=INR&tn=Pay_${cleanTitle}`;
+
+        document.getElementById('gpay-link').href = `${baseURI}&mode=02&orgid=000000`;
+        document.getElementById('phonepe-link').href = baseURI;
+        document.getElementById('paytm-link').href = baseURI;
+
+        switchScreen('checkout-screen');
+    }
+
     function switchScreen(id, element = null) {
+        if (id === 'admin-screen') {
+            const userId = tg.initDataUnsafe?.user?.id;
+            if (Number(userId) !== Number(ADMIN_TELEGRAM_ID)) {
+                alert("🚫 Access Denied.");
+                return;
+            }
+        }
+
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         
-        if(id !== 'detail-screen' && id !== 'payment-screen') {
+        if(id !== 'detail-screen' && id !== 'checkout-screen') {
             document.getElementById('global-header').style.display = 'flex';
             document.getElementById('global-nav').style.display = 'flex';
         }
-
         if(element) {
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             element.classList.add('active');
@@ -307,86 +400,34 @@
             simple_link: document.getElementById('adm-simple').value,
             ad_link: document.getElementById('adm-ad').value
         };
-
         const res = await fetch(`${API_URL}/api/stories`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-
-        if(res.ok) {
-            alert('🚀 Story added successfully!');
-            await loadStories();
-            switchScreen('home-screen');
-        }
+        if(res.ok) { alert('Show pushed successfully!'); loadStories(); switchScreen('home-screen'); }
     }
 
     function renderCarouselUI() {
-        const wrap = document.getElementById('carousel-wrapper');
-        wrap.innerHTML = '';
+        const wrap = document.getElementById('carousel-wrapper'); wrap.innerHTML = '';
         localBanners.forEach((b, i) => {
-            wrap.innerHTML += `
-                <div class="carousel-slide ${i===0?'active':''}" style="background-image: url('${b.image}');">
-                    <div class="banner-content">
-                        <span class="tag-trending"><i class="fa-solid fa-fire"></i> Trending #${i+1}</span>
-                        <h2 class="banner-title">${b.title}</h2>
-                    </div>
-                </div>
-            `;
+            wrap.innerHTML += `<div class="carousel-slide ${i===0?'active':''}" style="background-image: url('${b.image}');"><div class="banner-content"><span class="tag-trending">TRENDING</span><h2 class="banner-title">${b.title}</h2></div></div>`;
         });
     }
 
     function startSlider() {
         setInterval(() => {
-            const slides = document.querySelectorAll('.carousel-slide');
-            if(!slides.length) return;
+            const slides = document.querySelectorAll('.carousel-slide'); if(!slides.length) return;
             slides[currentSlideIndex].classList.remove('active');
             currentSlideIndex = (currentSlideIndex + 1) % slides.length;
             slides[currentSlideIndex].classList.add('active');
         }, 4000);
     }
 
-    function renderBannersAdmin() {
-        const box = document.getElementById('banner-settings-box');
-        box.innerHTML = '';
-        localBanners.forEach((b, i) => {
-            box.innerHTML += `
-                <div style="margin-bottom:10px; background:rgba(0,0,0,0.2); padding:8px; border-radius:8px;">
-                    <label style="font-size:10px; color:#ff9900;">BANNER SLOT ${i+1}</label>
-                    <input type="text" id="bn-t-${i}" class="form-control" style="margin:4px 0;" value="${b.title}">
-                    <input type="text" id="bn-i-${i}" class="form-control" value="${b.image}">
-                </div>
-            `;
-        });
-    }
-
-    function saveBanners() {
-        for(let i=0; i<5; i++) {
-            localBanners[i].title = document.getElementById(`bn-t-${i}`).value;
-            localBanners[i].image = document.getElementById(`bn-i-${i}`).value;
-        }
-        renderCarouselUI();
-        alert('🎯 Banners updated for this session!');
-    }
-
     function filterSearch() {
         const query = document.getElementById('search-bar').value.toLowerCase();
         const filtered = allStories.filter(s => s.title.toLowerCase().includes(query));
         renderGrids(filtered);
-    }
-
-    // Dynamic Payment Handler Protocol
-    function triggerPurchase() {
-        if(!selectedStoryForView) return;
-        
-        document.getElementById('pay-show-title').innerText = selectedStoryForView.title;
-        document.getElementById('pay-show-price').innerText = "₹" + selectedStoryForView.price;
-        
-        // Dynamic UPI Request Generation Link Mapping
-        const upiLink = `upi://pay?pa=${MERCHANT_UPI_ID}&pn=AC_Premium&am=${selectedStoryForView.price}&cu=INR&tn=Order_${selectedStoryForView.title.replace(/[^a-zA-Z0-9]/g, "_")}`;
-        document.getElementById('upi-intent-link').href = upiLink;
-
-        switchScreen('payment-screen');
     }
 </script>
 </body>
