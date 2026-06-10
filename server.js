@@ -10,105 +10,67 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve Frontend Static Web Assets
+// फ्रंटएंड फाइल्स सर्व करने के लिए
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 1. MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log('🛡️ MongoDB Database Connected Successfully!'))
+// 1. MongoDB Connection (Error Handling के साथ)
+const mongoURI = process.env.MONGO_URI;
+if (!mongoURI) {
+    console.error("❌ ERROR: MONGO_URI env variable is missing! Please add it in Render dashboard.");
+    process.exit(1);
+}
+
+mongoose.connect(mongoURI)
+.then(() => console.log('🛡️ MongoDB Connected Successfully!'))
 .catch(err => console.error('Database Connection Error:', err));
 
-// 2. TELEGRAM BOT SETUP
+// 2. Telegram Bot Setup
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-// Triggered when a user opens the bot chat manually via /start
 bot.start((ctx) => {
-    // Check if user arrived via a unique shared story link
-    const startPayload = ctx.startPayload; 
-    let targetUrl = process.env.WEB_APP_URL;
-
-    if (startPayload && startPayload.startsWith('story_')) {
-        // Append the deep-link parameter so the Mini App directly plays that exact story
-        targetUrl = `${process.env.WEB_APP_URL}?startapp=${startPayload}`;
-    }
-
-    ctx.reply('👋 Welcome to AC Premium Bot!\n\nClick the button below to launch the Mini App and access your favorite audiobooks instantly.', {
+    ctx.reply(`👋 Welcome to AC Premium Marketplace!\n\nClick below to explore and buy premium audiobook packs instantly.`, {
         reply_markup: {
             inline_keyboard: [
-                [{ text: "🚀 Open Mini App", web_app: { url: targetUrl } }]
+                [{ text: "🚀 Open Marketplace", web_app: { url: process.env.WEB_APP_URL } }]
             ]
         }
     });
 });
 
-// Booting up the Telegram polling instance
-bot.launch()
-.then(() => console.log('🤖 Telegram Bot Core Polling successfully...'))
-.catch(err => console.error('Bot Launch Failure:', err));
+bot.launch().catch(err => console.error("Bot launch failed:", err));
 
-// 3. API ENDPOINTS (For Mini App Interface Integration)
+// 3. API Routes
 
-// Route to fetch Bot details
-app.get('/api/config', (req, res) => {
-    res.json({
-        botUsername: process.env.BOT_USERNAME,
-        appShortName: process.env.APP_SHORT_NAME
-    });
-});
-
-// Route to fetch all stories to build the homepage catalog grid
+// सभी स्टोरीज की लिस्ट (Home और Explore के लिए)
 app.get('/api/stories', async (req, res) => {
     try {
         const stories = await Story.find().sort({ createdAt: -1 });
         res.json(stories);
-    } catch (err) { 
-        res.status(500).json({ error: err.message }); 
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Route to handle adding new stories directly from the Web App Admin UI
+// एडमिन पैनल से नई स्टोरी ऐड करने के लिए
 app.post('/api/stories', async (req, res) => {
     try {
-        const { title, cover, tag, simple_link, ad_link } = req.body;
-        
-        const newStory = new Story({ 
-            title, 
-            cover, 
-            tag, 
-            simple_link, 
-            ad_link 
-        });
-        
+        const { title, cover, tag, price, episodes, files_count, description, simple_link, ad_link } = req.body;
+        const newStory = new Story({ title, cover, tag, price, episodes, files_count, description, simple_link, ad_link });
         await newStory.save();
-        res.status(201).json({ success: true, message: "Story pushed to database from admin panel UI layer!" });
-    } catch(err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
+        res.status(201).json({ success: true, message: "Story added successfully!" });
+    } catch(err) { res.status(500).json({ success: false, error: err.message }); }
 });
 
-// Route to load individual profile content mapping parameters
+// सिंगल स्टोरी की डिटेल्स देखने के लिए
 app.get('/api/story/:id', async (req, res) => {
     try {
         const story = await Story.findById(req.params.id);
-        if (!story) return res.status(404).json({ message: "Show record not found!" });
+        if (!story) return res.status(404).json({ message: "Not found!" });
         res.json(story);
-    } catch (err) { 
-        res.status(500).json({ error: err.message }); 
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 4. START THE BACKEND SERVER ENGINE WITH GRACEFUL SHUTDOWN HOOKS
+// 4. Server Engine with Graceful Shutdown
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => console.log(`🚀 Backend server actively listening across port: ${PORT}`));
+const server = app.listen(PORT, () => console.log(`🚀 Server live on port ${PORT}`));
 
-// ✨ Fixes Telegram 409 Conflict Error: Tells old processes to stop cleanly on Render restart
-process.once('SIGINT', () => {
-    console.log('Stopping bot instance via SIGINT...');
-    bot.stop('SIGINT');
-    server.close();
-});
-process.once('SIGTERM', () => {
-    console.log('Stopping bot instance via SIGTERM...');
-    bot.stop('SIGTERM');
-    server.close();
-});
+process.once('SIGINT', () => { bot.stop('SIGINT'); server.close(); });
+process.once('SIGTERM', () => { bot.stop('SIGTERM'); server.close(); });
