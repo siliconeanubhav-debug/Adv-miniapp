@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BOTz / STORYs</title>
+    <title>BOTz / STORYs PRO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -85,12 +85,11 @@
 
         /* Checkout Page Spec */
         .checkout-box { background: var(--card-bg); border-radius: 20px; padding: 20px; border: 1px solid var(--border-color); margin-bottom: 15px; }
-        .summary-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-desc); margin-bottom: 12px; }
         .summary-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; padding-top: 15px; border-top: 1px dashed var(--border-color); margin-bottom: 20px; }
         .upi-apps-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
         .upi-app-btn { display: flex; align-items: center; gap: 12px; background: var(--input-bg); border: 1px solid var(--input-border); padding: 14px; border-radius: 12px; color: var(--text-main); font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; text-align: left; }
 
-        /* Admin & Live UTR Dashboard */
+        /* Admin Dashboard */
         .utr-panel-box { background: var(--card-bg); border: 1px solid var(--border-color); padding: 18px; border-radius: 20px; margin-top: 20px; }
         .req-card { background: var(--input-bg); border: 1px solid var(--input-border); padding: 14px; border-radius: 12px; margin-bottom: 12px; }
         .req-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
@@ -120,11 +119,11 @@
 
     <div id="home-screen" class="screen active">
         <div class="carousel-container" id="carousel-wrapper"></div>
-        <div class="category-scroll">
-            <span class="cat-chip active">All Audiobooks</span>
-            <span class="cat-chip">💕 Romance</span>
-            <span class="cat-chip">👁️ Thriller</span>
-            <span class="cat-chip">🔥 Drama</span>
+        <div class="category-scroll" id="category-chips-container">
+            <span class="cat-chip active" onclick="filterCategory('All')">All Audiobooks</span>
+            <span class="cat-chip" onclick="filterCategory('Romance')">💕 Romance</span>
+            <span class="cat-chip" onclick="filterCategory('Thriller')">👁️ Thriller</span>
+            <span class="cat-chip" onclick="filterCategory('Drama')">🔥 Drama</span>
         </div>
         <h3 class="section-title">Trending Pack Store</h3>
         <div id="stories-grid" class="grid-container"></div>
@@ -147,7 +146,7 @@
         <div class="profile-card">
             <h3 id="user-display-name">Premium User</h3>
             <p id="user-display-id" style="color:var(--text-muted); font-size:12px; margin-top:4px;">ID: -----</p>
-            <button class="btn btn-block btn-outline" style="margin-top:15px;" onclick="switchScreen('admin-screen')"><i class="fa-solid fa-lock"></i> Dev Dashboard</button>
+            <button class="btn btn-block btn-outline" style="margin-top:15px; display:none;" onclick="switchScreen('admin-screen')"><i class="fa-solid fa-lock"></i> Dev Dashboard</button>
         </div>
         <h3 class="section-title">My Purchased Library</h3>
         <div id="library-items-wrapper" class="grid-container" style="margin-top:10px;"></div>
@@ -236,6 +235,16 @@
     const API_URL = window.location.origin;
     const TARGET_UPI = "6398324472@fam"; 
     
+    // 🔐 OWNER ADMIN TELEGRAM ID (Apni real ID se isko replace karein)
+    const OWNER_ADMIN_ID = 5898522531; 
+    
+    // Fallback Data jab tak server active na ho
+    let fallbackStories = [
+        { _id: "m1", title: "Secret Billionaire Romance", price: 49, episodes: 180, files_count: 180, category: "Romance", cover: "https://picsum.photos/id/101/300/360", description: "An immersive romance saga exploring shadows, high society, and promises.", simple_link: "https://t.me/test_storage", ad_link: "https://shorturl.at/abc" },
+        { _id: "m2", title: "The Midnight Psycho", price: 79, episodes: 95, files_count: 95, category: "Thriller", cover: "https://picsum.photos/id/102/300/360", description: "Chilling psycho-thriller audio track compilation straight from dark records.", simple_link: "https://t.me/test_storage", ad_link: "" },
+        { _id: "m3", title: "Shadows of Destiny", price: 59, episodes: 240, files_count: 240, category: "Drama", cover: "https://picsum.photos/id/103/300/360", description: "Deep relational drama and generational bloodlines fighting for supreme honor.", simple_link: "https://t.me/test_storage", ad_link: "https://shorturl.at/xyz" }
+    ];
+
     let allStories = [];
     let cartItems = [];
     let myLibraryPacks = [];
@@ -246,6 +255,7 @@
     window.addEventListener('load', async () => {
         setupTelegramUser();
         await loadStories();
+        initCarousel();
         loadLocalUTRDesk();
     });
 
@@ -261,8 +271,14 @@
     function setupTelegramUser() {
         const user = tg.initDataUnsafe?.user;
         if(user) {
-            document.getElementById('user-display-name').innerText = user.first_name;
-            document.getElementById('user-display-id').innerText = "ID: " + user.id;
+            document.getElementById('user-display-name').innerText = user.first_name || "Premium User";
+            document.getElementById('user-display-id').innerText = "ID: " + (user.id || "-----");
+            
+            // 🔐 Dashboard button sirf owner ko dikhega
+            const devBtn = document.querySelector("#profile-screen .btn-outline");
+            if (devBtn && Number(user.id) === Number(OWNER_ADMIN_ID)) {
+                devBtn.style.display = "inline-flex";
+            }
         }
     }
 
@@ -271,21 +287,101 @@
             const res = await fetch(`${API_URL}/api/stories`);
             if(res.ok) {
                 allStories = await res.json();
-                renderStoreUI(allStories);
+            } else {
+                allStories = fallbackStories;
             }
-        } catch(e) { console.error("Database connection error: ", e); }
+        } catch(e) { 
+            allStories = fallbackStories;
+        }
+        renderStoreUI(allStories);
     }
 
+    // 🔍 Upgraded Real-Time Responsive Render System
     function renderStoreUI(data) {
         const hGrid = document.getElementById('stories-grid');
         const eGrid = document.getElementById('explore-grid');
         if(!hGrid) return;
-        hGrid.innerHTML = ''; eGrid.innerHTML = '';
         
+        hGrid.innerHTML = ''; 
+        if(eGrid) eGrid.innerHTML = '';
+        
+        if(data.length === 0) {
+            const emptyState = `<p style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:30px; font-weight:600;">❌ No matches found.</p>`;
+            hGrid.innerHTML = emptyState;
+            if(eGrid) eGrid.innerHTML = emptyState;
+            return;
+        }
+
         data.forEach(s => {
-            const card = `<div class="show-card" onclick="openProductPage('${s._id}')"><img src="${s.cover}"><div class="card-details"><div class="card-title">${s.title}</div><div class="card-price">₹${s.price}</div></div></div>`;
-            hGrid.innerHTML += card; eGrid.innerHTML += card;
+            const card = `
+                <div class="show-card" onclick="openProductPage('${s._id}')">
+                    <img src="${s.cover || 'https://picsum.photos/300/360'}">
+                    <div class="card-details">
+                        <div class="card-title">${s.title}</div>
+                        <div class="card-price">₹${s.price}</div>
+                    </div>
+                </div>`;
+            hGrid.innerHTML += card;
+            if(eGrid) eGrid.innerHTML += card;
         });
+    }
+
+    function initCarousel() {
+        const wrapper = document.getElementById('carousel-wrapper');
+        if(!wrapper || allStories.length === 0) return;
+        wrapper.innerHTML = '';
+        allStories.slice(0, 2).forEach((s, index) => {
+            wrapper.innerHTML += `
+                <div class="carousel-slide ${index === 0 ? 'active' : ''}" style="background-image: url('${s.cover}')" onclick="openProductPage('${s._id}')">
+                    <div class="banner-content">
+                        <span class="tag-trending"><i class="fa-solid fa-fire"></i> TRENDING NOW</span>
+                        <h3 style="font-size:18px; font-weight:800;">${s.title}</h3>
+                    </div>
+                </div>`;
+        });
+        
+        let currentSlide = 0;
+        setInterval(() => {
+            const slides = document.querySelectorAll('.carousel-slide');
+            if(slides.length < 2) return;
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }, 4000);
+    }
+
+    // Category Selector Utility
+    function filterCategory(category) {
+        const chips = document.querySelectorAll('#category-chips-container .cat-chip');
+        chips.forEach(chip => {
+            if(chip.innerText.includes(category) || (category === 'All' && chip.innerText.includes('All'))) {
+                chip.classList.add('active');
+            } else {
+                chip.classList.remove('active');
+            }
+        });
+        
+        if (category === 'All') {
+            renderStoreUI(allStories);
+        } else {
+            const filtered = allStories.filter(s => s.category && s.category.toLowerCase() === category.toLowerCase());
+            renderStoreUI(filtered);
+        }
+    }
+
+    // 🔍 Real-Time Live Search Engine Fixed
+    function filterSearch() {
+        const query = document.getElementById('search-bar').value.toLowerCase().trim();
+        if (query === "") {
+            renderStoreUI(allStories);
+            return;
+        }
+        const filtered = allStories.filter(s => {
+            const titleMatch = s.title ? s.title.toLowerCase().includes(query) : false;
+            const categoryMatch = s.category ? s.category.toLowerCase().includes(query) : false;
+            return titleMatch || categoryMatch;
+        });
+        renderStoreUI(filtered);
     }
 
     function openProductPage(id) {
@@ -309,9 +405,58 @@
         switchScreen('detail-screen');
     }
 
+    // Cart Core Implementations
+    function addItemToCart() {
+        if(!selectedStoryForView) return;
+        if(cartItems.some(item => item._id === selectedStoryForView._id)) {
+            alert("🛒 Item is already sitting inside your cart!");
+            return;
+        }
+        cartItems.push(selectedStoryForView);
+        renderCartUI();
+        alert(`Added "${selectedStoryForView.title}" to cart!`);
+    }
+
+    function renderCartUI() {
+        const wrap = document.getElementById('cart-items-wrapper');
+        const checkoutBtnBox = document.getElementById('cart-checkout-box');
+        if(!wrap) return;
+        wrap.innerHTML = '';
+        
+        if(cartItems.length === 0) {
+            wrap.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:20px;">Your cart basket is completely empty.</p>`;
+            checkoutBtnBox.style.display = 'none';
+            return;
+        }
+
+        cartItems.forEach(item => {
+            wrap.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-bg); padding:12px 16px; border-radius:14px; border:1px solid var(--border-color)">
+                    <div>
+                        <div style="font-weight:700; font-size:13px;">${item.title}</div>
+                        <div style="color:var(--primary-color); font-weight:800; font-size:12px; margin-top:2px;">₹${item.price}</div>
+                    </div>
+                    <button class="btn" style="background:transparent; color:#ff3d00; padding:4px 8px;" onclick="removeFromCart('${item._id}')"><i class="fa-solid fa-trash-can"></i></button>
+                </div>`;
+        });
+        checkoutBtnBox.style.display = 'block';
+    }
+
+    function removeFromCart(id) {
+        cartItems = cartItems.filter(item => item._id !== id);
+        renderCartUI();
+    }
+
+    function openCartCheckout() {
+        if(cartItems.length === 0) return;
+        checkoutMode = "cart";
+        const total = cartItems.reduce((acc, curr) => acc + Number(curr.price), 0);
+        document.getElementById('checkout-item-total').innerText = "₹" + total;
+        switchScreen('checkout-screen');
+    }
+
     function openShortenerLink() {
         if(!selectedStoryForView || !selectedStoryForView.ad_link) return;
-        // Fixing WebApp Open URL Rules inside App context
         tg.openLink(selectedStoryForView.ad_link, { try_instant_view: false });
     }
 
@@ -325,12 +470,9 @@
     function executeUPI(platform) {
         let amt = checkoutMode === "single" ? selectedStoryForView.price : cartItems.reduce((a, b) => a + Number(b.price), 0);
         let note = "Pack_Payment_" + Date.now();
-        
-        // Anti-Block Deeplink URL Standard Pattern for Telegram In-App Browsers
         let deepLink = `upi://pay?pa=${TARGET_UPI}&pn=BOTzStore&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
         
         try {
-            // Using correct method to trigger protocol scheme handler safely
             tg.openLink(deepLink);
         } catch(e) {
             window.location.href = deepLink;
@@ -358,6 +500,12 @@
         
         alert("🚀 UTR Sent to Admin Dashboard! Validation approval update soon.");
         document.getElementById('utr-number-input').value = '';
+        
+        if(checkoutMode === "cart") {
+            cartItems = [];
+            renderCartUI();
+        }
+        
         renderAdminDashboardQueue();
         switchScreen('home-screen');
     }
@@ -386,8 +534,7 @@
                         <button class="btn-approve" onclick="resolveUTR('${r.id}', true)">APPROVE</button>
                         <button class="btn-reject" onclick="resolveUTR('${r.id}', false)">REJECT</button>
                     </div>
-                </div>
-            `;
+                </div>`;
         });
     }
 
@@ -414,12 +561,32 @@
         const wrap = document.getElementById('library-items-wrapper');
         if(!wrap) return;
         wrap.innerHTML = '';
+        if(myLibraryPacks.length === 0) {
+            wrap.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:20px;">You haven't unlocked any packs yet.</p>`;
+            return;
+        }
         myLibraryPacks.forEach(s => {
-            wrap.innerHTML += `<div class="show-card" onclick="tg.openLink('${s.simple_link}')"><img src="${s.cover}"><div class="card-details"><div class="card-title">${s.title}</div><div class="card-price" style="color:#00e676">ACCESS STORAGE</div></div></div>`;
+            wrap.innerHTML += `
+                <div class="show-card" onclick="tg.openLink('${s.simple_link || 'https://t.me/'}')">
+                    <img src="${s.cover}">
+                    <div class="card-details">
+                        <div class="card-title">${s.title}</div>
+                        <div class="card-price" style="color:#00e676">ACCESS STORAGE</div>
+                    </div>
+                </div>`;
         });
     }
 
+    // 🔐 Secured Admin Guard Protection Engine
     function switchScreen(id, el = null) {
+        if (id === 'admin-screen') {
+            const currentUser = tg.initDataUnsafe?.user;
+            if (!currentUser || Number(currentUser.id) !== Number(OWNER_ADMIN_ID)) {
+                alert("⚠️ Access Denied: Aap is bot ke authorized admin nahi hain!");
+                return; 
+            }
+        }
+
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         if(el) {
@@ -439,14 +606,25 @@
             ad_link: document.getElementById('adm-ad').value
         };
 
-        const res = await fetch(`${API_URL}/api/stories`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        if(res.ok) {
-            alert("Show published!");
-            loadStories();
+        try {
+            const res = await fetch(`${API_URL}/api/stories`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if(res.ok) {
+                alert("Show published successfully!");
+                await loadStories();
+                switchScreen('home-screen');
+            } else {
+                alert("Backend API returned an error.");
+            }
+        } catch (e) {
+            data._id = "custom_" + Date.now();
+            allStories.push(data);
+            renderStoreUI(allStories);
+            initCarousel();
+            alert("Appended locally (Offline Mode Simulation Active).");
             switchScreen('home-screen');
         }
     }
