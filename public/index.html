@@ -7,20 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* CSS Variables for Dynamic Theme Switching */
+        /* CSS Variables - Light Theme set as Default (:root) */
         :root {
-            --bg-color: #0f1014;
-            --card-bg: #1a1b24;
-            --text-main: #ffffff;
-            --text-muted: #7a7e8c;
-            --text-desc: #aaa;
-            --border-color: rgba(255,255,255,0.05);
-            --input-bg: #12131a;
-            --input-border: rgba(255,255,255,0.1);
-            --header-logo: #ffffff;
-        }
-
-        [data-theme="light"] {
             --bg-color: #f4f5f9;
             --card-bg: #ffffff;
             --text-main: #12131a;
@@ -32,6 +20,19 @@
             --header-logo: #12131a;
         }
 
+        /* Dark Theme attribute selector */
+        [data-theme="dark"] {
+            --bg-color: #0f1014;
+            --card-bg: #1a1b24;
+            --text-main: #ffffff;
+            --text-muted: #7a7e8c;
+            --text-desc: #aaa;
+            --border-color: rgba(255,255,255,0.05);
+            --input-bg: #12131a;
+            --input-border: rgba(255,255,255,0.1);
+            --header-logo: #ffffff;
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; transition: background 0.3s, color 0.3s; }
         body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 90px; }
         .container { max-width: 500px; margin: auto; padding: 15px; }
@@ -40,7 +41,8 @@
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .brand-logo { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; color: var(--header-logo); }
         .brand-logo span { background: #ff9900; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
-        .btn-console { background: rgba(255,255,255,0.08); border: 1px solid var(--border-color); color: #ff8888; font-size: 11px; padding: 4px 10px; border-radius: 15px; font-weight: 600; }
+        .btn-console { background: rgba(0,0,0,0.05); border: 1px solid var(--border-color); color: #ff4444; font-size: 11px; padding: 4px 10px; border-radius: 15px; font-weight: 600; }
+        [data-theme="dark"] .btn-console { background: rgba(255,255,255,0.08); color: #ff8888; }
 
         /* Top 5 Banner Sliders */
         .carousel-container { position: relative; width: 100%; height: 230px; border-radius: 24px; overflow: hidden; margin-bottom: 20px; }
@@ -49,7 +51,8 @@
         .carousel-slide::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg-color) 25%, transparent 100%); z-index: 1; }
         .banner-content { position: relative; z-index: 2; }
         .tag-trending { background: #ff5500; color: #fff; font-size: 9px; font-weight: bold; padding: 3px 8px; border-radius: 20px; display: inline-block; margin-bottom: 5px; text-transform: uppercase; }
-        .banner-title { font-size: 22px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.6); }
+        .banner-title { font-size: 22px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.2); color: var(--text-main); }
+        [data-theme="dark"] .banner-title { text-shadow: 0 2px 4px rgba(0,0,0,0.6); }
 
         /* Categories Scroll */
         .category-scroll { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 20px; padding-bottom: 5px; }
@@ -68,7 +71,7 @@
 
         /* Product Detail Layout */
         .detail-header { position: relative; width: 100%; height: 260px; background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 20px; }
-        .detail-header::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg-color) 100%, transparent); opacity: 0.7; }
+        .detail-header::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg-color) 100%, transparent); opacity: 0.5; }
         .detail-header::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg-color) 15%, transparent); }
         .detail-meta-box { position: relative; z-index: 2; width: 100%; }
         
@@ -77,11 +80,14 @@
         .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
         .stat-value { font-size: 14px; font-weight: 700; color: var(--text-main); }
         .desc-text { font-size: 13px; color: var(--text-desc); line-height: 1.6; margin-bottom: 20px; }
-        .action-bar-fixed { position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: var(--card-bg); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); z-index: 99; }
+        
+        /* Multi-Action Fixed Bar */
+        .action-bar-fixed { position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: var(--card-bg); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); gap: 10px; z-index: 99; }
+        .price-box { min-width: 80px; }
 
         /* Checkout Banner Feature */
         .checkout-banner { width: 100%; height: 160px; border-radius: 20px; background-size: cover; background-position: center; margin-bottom: 15px; position: relative; overflow: hidden; border: 1px solid var(--border-color); }
-        .checkout-banner::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8) 40%, transparent); }
+        .checkout-banner::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.6) 40%, transparent); }
         .checkout-banner-title { position: absolute; bottom: 15px; left: 15px; color: #fff; font-size: 18px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 
         /* Profile Card Design */
@@ -91,28 +97,42 @@
         .profile-meta { font-size: 12px; color: var(--text-muted); }
         .admin-trigger-btn { background: #ff9900; color: #000; font-weight: bold; border: none; padding: 12px; border-radius: 12px; width: 100%; margin-top: 15px; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 8px; }
 
+        /* Live Cart List Layout */
+        .cart-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .cart-item { display: flex; align-items: center; gap: 12px; background: var(--card-bg); padding: 12px; border-radius: 16px; border: 1px solid var(--border-color); position: relative; }
+        .cart-item img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
+        .cart-item-info { flex: 1; min-width: 0; padding-right: 35px; }
+        .cart-item-title { font-size: 14px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cart-item-price { font-size: 13px; color: #ff5500; font-weight: 700; margin-top: 2px; }
+        
+        /* 🗑️ इंडिविजुअल रिमूव बटन स्टाइल */
+        .btn-remove-item { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #ff4444; font-size: 16px; cursor: pointer; padding: 5px; transition: color 0.2s; }
+        .btn-remove-item:active { color: #cc0000; }
+
         /* Checkout Gateway Box */
         .checkout-box { background: var(--card-bg); border-radius: 24px; padding: 20px; border: 1px solid var(--border-color); }
         .summary-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-desc); margin-bottom: 10px; }
         .summary-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; color: var(--text-main); padding-top: 12px; border-top: 1px dashed var(--border-color); margin-bottom: 25px; }
         
         .upi-apps-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        .upi-app-btn { display: flex; align-items: center; gap: 15px; background: var(--input-bg); border: 1px solid var(--input-border); padding: 14px 20px; border-radius: 16px; color: var(--text-main); font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; }
+        .upi-app-btn { display: flex; align-items: center; gap: 15px; background: var(--input-bg); border: 1px solid var(--input-border); padding: 14px 20px; border-radius: 16px; color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; text-align: left; }
         .upi-app-btn:active { background: rgba(255,85,0,0.1); border-color: #ff5500; }
         .icon-gpay { color: #4285F4; }
         .icon-phonepe { color: #5f259f; }
         .icon-paytm { color: #00baf2; }
 
         /* Buttons & Forms */
-        .btn { background: #ff5500; color: white; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; justify-content: center; text-decoration: none; }
+        .btn { background: #ff5500; color: white; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; justify-content: center; text-decoration: none; }
+        .btn-outline { background: transparent; border: 1px solid #ff5500; color: #ff5500; }
         .btn-block { width: 100%; }
         .form-control { width: 100%; background: var(--input-bg); border: 1px solid var(--input-border); padding: 12px; border-radius: 10px; color: var(--text-main); font-size: 13px; outline: none; margin-top: 5px; }
 
-        /* Bottom Navbar */
+        /* Bottom Navbar & Cart Badge Counter */
         .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid var(--border-color); z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); background: none; border: none; font-size: 10px; font-weight: bold; cursor: pointer; width: 25%; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); background: none; border: none; font-size: 10px; font-weight: bold; cursor: pointer; width: 25%; position: relative; }
         .nav-item i { font-size: 18px; }
         .nav-item.active { color: #ff5500; }
+        .cart-badge { position: absolute; top: -4px; right: 22%; background: #ff3333; color: white; font-size: 9px; font-weight: bold; border-radius: 50%; width: 15px; height: 15px; display: none; align-items: center; justify-content: center; border: 1px solid var(--card-bg); }
         
         .screen { display: none; }
         .screen.active { display: block; }
@@ -152,10 +172,26 @@
 
     <!-- ================= 3. CART SCREEN ================= -->
     <div id="cart-screen" class="screen">
-        <div class="empty-state"><i class="fa-solid fa-basket-shopping" style="font-size:40px; margin-bottom:10px;"></i><p>Your cart is empty</p></div>
+        <h3 class="section-title">📦 Shopping Cart</h3>
+        
+        <!-- यहाँ आपकी जोड़ी हुई स्टोरीज़ दिखेंगी, हर एक के आगे 🗑️ बटन के साथ -->
+        <div id="cart-items-wrapper" class="cart-list"></div>
+        
+        <div id="cart-empty-state" class="empty-state">
+            <i class="fa-solid fa-basket-shopping" style="font-size:40px; margin-bottom:10px;"></i>
+            <p>Your cart is empty</p>
+        </div>
+        
+        <div id="cart-checkout-box" style="display: none; background: var(--card-bg); padding: 15px; border-radius: 16px; border:1px solid var(--border-color); margin-top:15px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-weight:bold;">
+                <span>Total Items:</span>
+                <span id="cart-total-price-text" style="color:#ff5500; font-size:16px;">₹0</span>
+            </div>
+            <button class="btn btn-block" onclick="openCartCheckout()"><i class="fa-solid fa-credit-card"></i> Proceed to Checkout</button>
+        </div>
     </div>
 
-    <!-- ================= 4. PROFILE SCREEN (WITH THEME TOGGLE) ================= -->
+    <!-- ================= 4. PROFILE SCREEN ================= -->
     <div id="profile-screen" class="screen">
         <h3 class="section-title">My Account</h3>
         <div class="profile-card">
@@ -169,10 +205,9 @@
         </div>
 
         <div style="background: var(--card-bg); border-radius: 16px; padding: 10px; border: 1px solid var(--border-color)">
-            <!-- Dynamic Theme Mode Feature Row -->
             <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid var(--border-color); font-size:14px; cursor:pointer;" onclick="toggleThemeMode()">
                 <span><i class="fa-solid fa-circle-half-stroke" style="color:#0088cc; margin-right:10px;"></i> Switch App Theme</span>
-                <span id="theme-status-text" style="font-size:12px; font-weight:bold; color:#ff5500;">Dark Mode</span>
+                <span id="theme-status-text" style="font-size:12px; font-weight:bold; color:#ff5500;">Light Mode</span>
             </div>
             <div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid var(--border-color); font-size:14px; cursor:pointer;" onclick="switchScreen('library-screen')">
                 <span><i class="fa-solid fa-folder-open" style="color:#ff5500; margin-right:10px;"></i> My Library Packs</span>
@@ -207,17 +242,18 @@
         </div>
         <h3 style="font-size:14px; margin-bottom:8px; color:#ff5500;">CONTENT ACCESS & DELIVERY</h3>
         <p class="desc-text" id="detail-desc">Loading...</p>
+        
         <div class="action-bar-fixed">
-            <div><p style="font-size:11px; color:var(--text-muted);">Total price</p><span style="font-size:20px; font-weight:800;" id="detail-price">₹0</span></div>
-            <button class="btn" onclick="openCheckout()"><i class="fa-solid fa-bag-shopping"></i> Buy Now</button>
+            <div class="price-box"><p style="font-size:10px; color:var(--text-muted);">Price</p><span style="font-size:18px; font-weight:800;" id="detail-price">₹0</span></div>
+            <button class="btn btn-outline" style="flex: 1;" onclick="addItemToCart()"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+            <button class="btn" style="flex: 1;" onclick="openCheckout()"><i class="fa-solid fa-bag-shopping"></i> Buy Now</button>
         </div>
     </div>
 
-    <!-- ================= SECURE CHECKOUT SCREEN (WITH IMAGE BANNER) ================= -->
+    <!-- ================= SECURE CHECKOUT SCREEN ================= -->
     <div id="checkout-screen" class="screen">
         <button class="btn" onclick="switchScreen('detail-screen')" style="margin-bottom:15px; padding:6px 12px; font-size:12px; background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-main);"><i class="fa-solid fa-arrow-left"></i> Back</button>
         
-        <!-- न्यू फीचर: चेकआउट इमेज बैनर लोड फ़ील्ड -->
         <div id="checkout-item-banner" class="checkout-banner">
             <div id="checkout-banner-title" class="checkout-banner-title">Item Title</div>
         </div>
@@ -226,10 +262,13 @@
             <div class="summary-row"><span id="checkout-item-name">Item Name</span><span id="checkout-item-base-price">₹0</span></div>
             <div class="summary-row"><span>Platform Fee</span><span>₹0.00</span></div>
             <div class="summary-total"><span>Total Payable</span><span id="checkout-item-total">₹0</span></div>
+            
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px; font-weight:bold; text-transform:uppercase;">Select UPI App to Pay</p>
+            
             <div class="upi-apps-list">
-                <a id="gpay-link" href="#" class="upi-app-btn"><i class="fa-brands fa-google-pay icon-gpay"></i> Google Pay</a>
-                <a id="phonepe-link" href="#" class="upi-app-btn"><i class="fa-solid fa-wallet icon-phonepe"></i> PhonePe</a>
-                <a id="paytm-link" href="#" class="upi-app-btn"><i class="fa-solid fa-money-bill-1-wave icon-paytm"></i> Paytm</a>
+                <button onclick="executeUPI('gpay')" class="upi-app-btn"><i class="fa-brands fa-google-pay icon-gpay"></i> Google Pay</button>
+                <button onclick="executeUPI('phonepe')" class="upi-app-btn"><i class="fa-solid fa-wallet icon-phonepe"></i> PhonePe</button>
+                <button onclick="executeUPI('paytm')" class="upi-app-btn"><i class="fa-solid fa-money-bill-1-wave icon-paytm"></i> Paytm</button>
             </div>
         </div>
     </div>
@@ -257,7 +296,7 @@
 <div class="bottom-nav" id="global-nav">
     <button class="nav-item active" onclick="switchScreen('home-screen', this)"><i class="fa-solid fa-house"></i>HOME</button>
     <button class="nav-item" onclick="switchScreen('explore-screen', this)"><i class="fa-solid fa-compass"></i>EXPLORE</button>
-    <button class="nav-item" onclick="switchScreen('cart-screen', this)"><i class="fa-solid fa-basket-shopping"></i>CART</button>
+    <button class="nav-item" onclick="switchScreen('cart-screen', this)"><i class="fa-solid fa-basket-shopping"></i>CART<div id="cart-badge-count" class="cart-badge">0</div></button>
     <button class="nav-item" onclick="switchScreen('profile-screen', this)"><i class="fa-solid fa-user"></i>PROFILE</button>
 </div>
 
@@ -269,11 +308,12 @@
     let allStories = [];
     let currentSlideIndex = 0;
     let selectedStoryForView = null;
+    
+    let cartItems = []; 
+    let checkoutMode = "single";
 
     const TARGET_UPI = "6398324472@fam";
-
-    // ⚙️ यहाँ अपनी असली टेलीग्राम आईडी बदलें (जैसे: 549382022)
-    const ADMIN_TELEGRAM_ID = 5898522531; 
+    const ADMIN_TELEGRAM_ID = 123456789; // अपनी टेलीग्राम आईडी यहाँ डालें
 
     let localBanners = [
         { title: "Zero To Hero", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500" },
@@ -281,18 +321,28 @@
     ];
 
     window.addEventListener('load', async () => {
+        // डिफ़ॉल्ट लाइट थीम लागू करना
+        document.body.removeAttribute('data-theme');
+        document.getElementById('theme-status-text').innerText = "Light Mode";
+        
         setupTelegramUser();
         renderCarouselUI();
         startSlider();
         await loadStories();
+        updateCartUI();
     });
 
-    // 🎨 थीम चेंज फ़ंक्शनलिटी लॉजिक
     function toggleThemeMode() {
         const currentTheme = document.body.getAttribute('data-theme');
-        const targetTheme = currentTheme === 'light' ? 'dark' : 'light';
-        document.body.setAttribute('data-theme', targetTheme);
-        document.getElementById('theme-status-text').innerText = targetTheme === 'light' ? 'Light Mode' : 'Dark Mode';
+        const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        if (targetTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-status-text').innerText = "Dark Mode";
+        } else {
+            document.body.removeAttribute('data-theme');
+            document.getElementById('theme-status-text').innerText = "Light Mode";
+        }
     }
 
     function setupTelegramUser() {
@@ -344,26 +394,113 @@
         switchScreen('detail-screen');
     }
 
-    // 🖼️ चेकआउट पेज पर बैनर दिखाने के अपग्रेड्स के साथ
+    function addItemToCart() {
+        if(!selectedStoryForView) return;
+        const exists = cartItems.some(item => item._id === selectedStoryForView._id);
+        if(exists) {
+            alert("⚠️ This pack is already inside your cart.");
+            return;
+        }
+        cartItems.push(selectedStoryForView);
+        updateCartUI();
+        alert("🛒 Added to cart successfully!");
+    }
+
+    /* 🗑️ किसी भी सिंगल स्टोरी को लिस्ट से रिमूव करने का बटन फंक्शन */
+    function removeItemFromCart(id) {
+        cartItems = cartItems.filter(item => item._id !== id);
+        updateCartUI();
+    }
+
+    function updateCartUI() {
+        const wrapper = document.getElementById('cart-items-wrapper');
+        const emptyState = document.getElementById('cart-empty-state');
+        const checkoutBox = document.getElementById('cart-checkout-box');
+        const badge = document.getElementById('cart-badge-count');
+
+        if (cartItems.length > 0) {
+            badge.innerText = cartItems.length;
+            badge.style.display = 'flex';
+            emptyState.style.display = 'none';
+            checkoutBox.style.display = 'block';
+        } else {
+            badge.style.display = 'none';
+            emptyState.style.display = 'block';
+            checkoutBox.style.display = 'none';
+        }
+
+        wrapper.innerHTML = '';
+        let total = 0;
+
+        cartItems.forEach(item => {
+            total += Number(item.price);
+            wrapper.innerHTML += `
+                <div class="cart-item">
+                    <img src="${item.cover}">
+                    <div class="cart-item-info">
+                        <div class="cart-item-title">${item.title}</div>
+                        <div class="cart-item-price">₹${item.price}</div>
+                    </div>
+                    <!-- 🗑️ यहाँ लगाया गया है रिमूव करने का बटन -->
+                    <button class="btn-remove-item" onclick="removeItemFromCart('${item._id}')" title="Remove Item">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `;
+        });
+
+        document.getElementById('cart-total-price-text').innerText = "₹" + total;
+    }
+
     function openCheckout() {
         if(!selectedStoryForView) return;
+        checkoutMode = "single";
         
-        // चेकआउट स्क्रीन पर लाइव इमेज बैनर रेंडर करना
         document.getElementById('checkout-item-banner').style.backgroundImage = `url('${selectedStoryForView.cover}')`;
         document.getElementById('checkout-banner-title').innerText = selectedStoryForView.title;
-
         document.getElementById('checkout-item-name').innerText = selectedStoryForView.title;
         document.getElementById('checkout-item-base-price').innerText = "₹" + selectedStoryForView.price;
         document.getElementById('checkout-item-total').innerText = "₹" + selectedStoryForView.price;
 
-        const cleanTitle = selectedStoryForView.title.replace(/[^a-zA-Z0-9]/g, "");
-        const baseURI = `upi://pay?pa=${TARGET_UPI}&pn=AryaPremium&am=${selectedStoryForView.price}&cu=INR&tn=Pay_${cleanTitle}`;
+        switchScreen('checkout-screen');
+    }
 
-        document.getElementById('gpay-link').href = `${baseURI}&mode=02&orgid=000000`;
-        document.getElementById('phonepe-link').href = baseURI;
-        document.getElementById('paytm-link').href = baseURI;
+    function openCartCheckout() {
+        if(cartItems.length === 0) return;
+        checkoutMode = "cart";
+
+        let totalPrice = cartItems.reduce((acc, item) => acc + Number(item.price), 0);
+
+        document.getElementById('checkout-item-banner').style.backgroundImage = `url('${cartItems[0].cover}')`;
+        document.getElementById('checkout-banner-title').innerText = `Cart Bulk Purchase (${cartItems.length} Shows)`;
+        document.getElementById('checkout-item-name').innerText = `${cartItems.length} Premium Audiobooks`;
+        document.getElementById('checkout-item-base-price').innerText = "₹" + totalPrice;
+        document.getElementById('checkout-item-total').innerText = "₹" + totalPrice;
 
         switchScreen('checkout-screen');
+    }
+
+    function executeUPI(platform) {
+        let amount = 0;
+        let note = "Pay_PremiumShow";
+
+        if (checkoutMode === "single") {
+            if(!selectedStoryForView) return;
+            amount = selectedStoryForView.price;
+            note = "Pay_" + selectedStoryForView.title.replace(/[^a-zA-Z0-9]/g, "");
+        } else {
+            if(cartItems.length === 0) return;
+            amount = cartItems.reduce((acc, item) => acc + Number(item.price), 0);
+            note = `Cart_${cartItems.length}_Packs`;
+        }
+
+        let baseURI = `upi://pay?pa=${TARGET_UPI}&pn=AryaPremium&am=${amount}&cu=INR&tn=${note}`;
+        
+        if (platform === 'gpay') {
+            baseURI += "&mode=02&orgid=000000";
+        }
+
+        tg.openLink(baseURI);
     }
 
     function switchScreen(id, element = null) {
@@ -378,6 +515,10 @@
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         
+        if(id === 'cart-screen') {
+            updateCartUI();
+        }
+
         if(id !== 'detail-screen' && id !== 'checkout-screen') {
             document.getElementById('global-header').style.display = 'flex';
             document.getElementById('global-nav').style.display = 'flex';
