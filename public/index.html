@@ -3,298 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arya | PREMIUM</title>
+    <title>BOTz / STORYs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* CSS Variables - Default Light Theme */
         :root {
-            --bg-color: #f4f5f9;
+            --bg-color: #f8f9fa;
             --card-bg: #ffffff;
-            --text-main: #12131a;
-            --text-muted: #8a8e9d;
-            --text-desc: #4f525e;
-            --border-color: rgba(0,0,0,0.08);
-            --input-bg: #fdfdfd;
-            --input-border: rgba(0,0,0,0.12);
-            --header-logo: #12131a;
+            --text-main: #111111;
+            --text-muted: #7e8299;
+            --text-desc: #5e6278;
+            --border-color: #eff2f5;
+            --input-bg: #f5f8fa;
+            --input-border: #e4e6ef;
+            --primary-color: #ff5500;
         }
 
         [data-theme="dark"] {
-            --bg-color: #0f1014;
-            --card-bg: #1a1b24;
+            --bg-color: #0c0d12;
+            --card-bg: #151622;
             --text-main: #ffffff;
-            --text-muted: #7a7e8c;
-            --text-desc: #aaa;
-            --border-color: rgba(255,255,255,0.05);
-            --input-bg: #12131a;
-            --input-border: rgba(255,255,255,0.1);
-            --header-logo: #ffffff;
+            --text-muted: #626580;
+            --text-desc: #b5b5c3;
+            --border-color: #232537;
+            --input-bg: #1b1c2b;
+            --input-border: #2c2e43;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; transition: background 0.3s, color 0.3s; }
-        body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 90px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; transition: background 0.2s; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 80px; font-size: 14px; }
         .container { max-width: 500px; margin: auto; padding: 15px; }
 
-        /* Top Global Header */
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .brand-logo { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; color: var(--header-logo); }
-        .brand-logo span { background: #ff9900; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
-        .btn-console { background: rgba(0,0,0,0.05); border: 1px solid var(--border-color); color: #ff4444; font-size: 11px; padding: 4px 10px; border-radius: 15px; font-weight: 600; }
-
-        /* Banners Slider */
-        .carousel-container { position: relative; width: 100%; height: 230px; border-radius: 24px; overflow: hidden; margin-bottom: 20px; }
-        .carousel-slide { display: none; width: 100%; height: 100%; background-size: cover; background-position: center; flex-direction: column; justify-content: flex-end; padding: 20px; position: relative; }
-        .carousel-slide.active { display: flex; }
-        .carousel-slide::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg-color) 25%, transparent 100%); z-index: 1; }
-        .banner-content { position: relative; z-index: 2; }
-        .tag-trending { background: #ff5500; color: #fff; font-size: 9px; font-weight: bold; padding: 3px 8px; border-radius: 20px; display: inline-block; margin-bottom: 5px; text-transform: uppercase; }
-        .banner-title { font-size: 22px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.2); color: var(--text-main); }
-
-        /* Categories */
-        .category-scroll { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 20px; padding-bottom: 5px; }
-        .category-scroll::-webkit-scrollbar { display: none; }
-        .cat-chip { background: var(--card-bg); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; border: 1px solid var(--border-color); }
-        .cat-chip.active { background: #ff5500; color: #fff; border-color: #ff5500; }
-
-        /* Grid */
-        .section-title { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .show-card { background: var(--card-bg); border-radius: 16px; overflow: hidden; position: relative; cursor: pointer; border: 1px solid var(--border-color); }
-        .show-card img { width: 100%; aspect-ratio: 1/1.2; object-fit: cover; }
-        .card-details { padding: 10px; }
-        .card-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
-        .card-price { font-size: 12px; color: #ff5500; font-weight: 700; }
-
-        /* Detail Screen Layout */
-        .detail-header { position: relative; width: 100%; height: 260px; background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 20px; }
-        .detail-header::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg-color) 100%, transparent); opacity: 0.5; }
-        .detail-header::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg-color) 15%, transparent); }
-        .detail-meta-box { position: relative; z-index: 2; width: 100%; }
+        /* Top Header */
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .brand-logo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+        .brand-logo span { background: #ffe9d5; color: var(--primary-color); font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 700; margin-left: 6px; }
         
+        /* Banner/Slider */
+        .carousel-container { position: relative; width: 100%; height: 220px; border-radius: 20px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.05); }
+        .carousel-slide { display: none; width: 100%; height: 100%; background-size: cover; background-position: center; flex-direction: column; justify-content: flex-end; padding: 20px; }
+        .carousel-slide.active { display: flex; }
+        .carousel-slide::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8) 30%, transparent 90%); }
+        .banner-content { position: relative; z-index: 2; color: #fff; }
+        .tag-trending { background: var(--primary-color); color: #fff; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 8px; display: inline-block; margin-bottom: 6px; }
+
+        /* Chips */
+        .category-scroll { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 25px; padding-bottom: 5px; }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .cat-chip { background: var(--card-bg); color: var(--text-muted); padding: 10px 18px; border-radius: 30px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; border: 1px solid var(--border-color); }
+        .cat-chip.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+
+        /* Grid Cards */
+        .section-title { font-size: 15px; font-weight: 800; margin-bottom: 15px; letter-spacing: 0.3px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+        .section-title::before { content: ''; width: 4px; height: 16px; background: var(--primary-color); border-radius: 2px; display: inline-block; }
+        .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        .show-card { background: var(--card-bg); border-radius: 16px; overflow: hidden; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .show-card img { width: 100%; aspect-ratio: 1/1.2; object-fit: cover; }
+        .card-details { padding: 12px; }
+        .card-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-price { font-size: 13px; color: var(--primary-color); font-weight: 800; }
+
+        /* Detail Screen */
+        .detail-header { position: relative; width: 100%; height: 280px; background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 25px; border-radius: 0 0 24px 24px; margin-top: -15px; margin-left: -15px; width: calc(100% + 30px); }
+        .detail-header::before { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to top, var(--bg-color) 12%, rgba(0,0,0,0.4) 80%); }
+        .detail-meta-box { position: relative; z-index: 2; }
         .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; background: var(--card-bg); padding: 15px; border-radius: 16px; border: 1px solid var(--border-color); }
         .stat-item { text-align: center; }
-        .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-        .stat-value { font-size: 14px; font-weight: 700; color: var(--text-main); }
-        .desc-text { font-size: 13px; color: var(--text-desc); line-height: 1.6; margin-bottom: 20px; }
-        
-        /* Bottom Fixed Action Bar */
-        .action-bar-fixed { position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: var(--card-bg); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); gap: 10px; z-index: 99; }
-        .price-box { min-width: 80px; }
+        .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; font-weight: 700; }
+        .stat-value { font-size: 13px; font-weight: 800; }
 
-        /* Checkout Banner */
-        .checkout-banner { width: 100%; height: 160px; border-radius: 20px; background-size: cover; background-position: center; margin-bottom: 15px; position: relative; overflow: hidden; border: 1px solid var(--border-color); }
-        .checkout-banner::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.6) 40%, transparent); }
-        .checkout-banner-title { position: absolute; bottom: 15px; left: 15px; color: #fff; font-size: 18px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        /* Fixed Footer Payment Bar */
+        .action-bar-fixed { position: fixed; bottom: 65px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: var(--card-bg); padding: 15px 20px; display: flex; flex-direction: column; border-top: 1px solid var(--border-color); gap: 12px; z-index: 999; box-shadow: 0 -8px 24px rgba(0,0,0,0.04); }
+        .action-buttons-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
 
-        /* Profile Card & Admin Button Container */
-        .profile-card { background: var(--card-bg); border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 20px; border: 1px solid var(--border-color); position: relative; }
-        .profile-avatar { width: 70px; height: 70px; background: #ff5500; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; margin: 0 auto 12px auto; color: #fff; cursor: pointer; }
-        .profile-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--text-main); }
-        .profile-meta { font-size: 12px; color: var(--text-muted); cursor: pointer; }
-        
-        /* 🛠️ Admin Trigger Button Styling */
-        .admin-trigger-btn { background: #ff9900; color: #000; font-weight: bold; border: none; padding: 14px; border-radius: 14px; width: 100%; margin-top: 15px; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(255,153,0,0.2); font-size: 14px; }
-
-        /* Cart Items */
-        .cart-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        .cart-item { display: flex; align-items: center; gap: 12px; background: var(--card-bg); padding: 12px; border-radius: 16px; border: 1px solid var(--border-color); position: relative; }
-        .cart-item img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
-        .cart-item-info { flex: 1; min-width: 0; padding-right: 35px; }
-        .cart-item-title { font-size: 14px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cart-item-price { font-size: 13px; color: #ff5500; font-weight: 700; margin-top: 2px; }
-        
-        .btn-remove-item { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #ff4444; font-size: 16px; cursor: pointer; padding: 5px; }
-
-        /* Checkout Gateway Box */
-        .checkout-box { background: var(--card-bg); border-radius: 24px; padding: 20px; border: 1px solid var(--border-color); }
-        .summary-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-desc); margin-bottom: 10px; }
-        .summary-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; color: var(--text-main); padding-top: 12px; border-top: 1px dashed var(--border-color); margin-bottom: 25px; }
-        
-        .upi-apps-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        .upi-app-btn { display: flex; align-items: center; gap: 15px; background: var(--input-bg); border: 1px solid var(--input-border); padding: 14px 20px; border-radius: 16px; color: var(--text-main); font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; text-align: left; }
-        .upi-app-btn:active { background: rgba(255,85,0,0.1); border-color: #ff5500; }
-        .icon-gpay { color: #4285F4; }
-        .icon-phonepe { color: #5f259f; }
-        .icon-paytm { color: #00baf2; }
-
-        /* Global Buttons & Inputs */
-        .btn { background: #ff5500; color: white; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; justify-content: center; text-decoration: none; }
-        .btn-outline { background: transparent; border: 1px solid #ff5500; color: #ff5500; }
+        /* Forms & Buttons */
+        .btn { background: var(--primary-color); color: white; border: none; padding: 14px 20px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; justify-content: center; text-decoration: none; }
+        .btn-outline { background: transparent; border: 1.5px solid var(--primary-color); color: var(--primary-color); }
         .btn-block { width: 100%; }
-        .form-control { width: 100%; background: var(--input-bg); border: 1px solid var(--input-border); padding: 12px; border-radius: 10px; color: var(--text-main); font-size: 13px; outline: none; margin-top: 5px; }
+        .form-control { width: 100%; background: var(--input-bg); border: 1px solid var(--input-border); padding: 14px; border-radius: 12px; color: var(--text-main); font-size: 14px; outline: none; margin-top: 8px; }
+        .form-control:focus { border-color: var(--primary-color); }
 
-        /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid var(--border-color); z-index: 1000; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); background: none; border: none; font-size: 10px; font-weight: bold; cursor: pointer; width: 25%; position: relative; }
+        /* Checkout Page Spec */
+        .checkout-box { background: var(--card-bg); border-radius: 20px; padding: 20px; border: 1px solid var(--border-color); margin-bottom: 15px; }
+        .summary-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-desc); margin-bottom: 12px; }
+        .summary-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; padding-top: 15px; border-top: 1px dashed var(--border-color); margin-bottom: 20px; }
+        .upi-apps-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .upi-app-btn { display: flex; align-items: center; gap: 12px; background: var(--input-bg); border: 1px solid var(--input-border); padding: 14px; border-radius: 12px; color: var(--text-main); font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; text-align: left; }
+
+        /* Admin & Live UTR Dashboard */
+        .utr-panel-box { background: var(--card-bg); border: 1px solid var(--border-color); padding: 18px; border-radius: 20px; margin-top: 20px; }
+        .req-card { background: var(--input-bg); border: 1px solid var(--input-border); padding: 14px; border-radius: 12px; margin-bottom: 12px; }
+        .req-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+        .req-title { font-size: 14px; font-weight: 800; margin-bottom: 6px; }
+        .req-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-approve { background: #00e676; color: #000; padding: 8px 16px; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .btn-reject { background: #ff3d00; color: #fff; padding: 8px 16px; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+        /* Navigation */
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid var(--border-color); z-index: 9999; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); background: none; border: none; font-size: 11px; font-weight: 700; cursor: pointer; width: 25%; }
         .nav-item i { font-size: 18px; }
-        .nav-item.active { color: #ff5500; }
-        .cart-badge { position: absolute; top: -4px; right: 22%; background: #ff3333; color: white; font-size: 9px; font-weight: bold; border-radius: 50%; width: 15px; height: 15px; display: none; align-items: center; justify-content: center; border: 1px solid var(--card-bg); }
+        .nav-item.active { color: var(--primary-color); }
         
         .screen { display: none; }
         .screen.active { display: block; }
-        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .profile-card { background: var(--card-bg); border-radius: 20px; padding: 20px; text-align: center; border: 1px solid var(--border-color); margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Top Header -->
     <div class="top-header" id="global-header">
-        <div class="brand-logo">Arya | <span>PREMIUM</span></div>
-        <div class="top-actions">
-            <span class="btn-console"><i class="fa-solid fa-bolt"></i> PASS EXPIRED</span>
-        </div>
+        <div class="brand-logo">BOTz / STORYs <span>PRO</span></div>
+        <button class="btn" style="padding: 6px 12px; font-size: 11px; border-radius: 8px;" onclick="toggleThemeMode()"><i class="fa-solid fa-moon"></i> Theme</button>
     </div>
 
-    <!-- ================= 1. HOME SCREEN ================= -->
     <div id="home-screen" class="screen active">
         <div class="carousel-container" id="carousel-wrapper"></div>
         <div class="category-scroll">
-            <span class="cat-chip active">All Premium Shows</span>
+            <span class="cat-chip active">All Audiobooks</span>
             <span class="cat-chip">💕 Romance</span>
             <span class="cat-chip">👁️ Thriller</span>
-            <span class="cat-chip">🔥 Action</span>
+            <span class="cat-chip">🔥 Drama</span>
         </div>
-        <h3 class="section-title">🔥 Top Trending Series</h3>
+        <h3 class="section-title">Trending Pack Store</h3>
         <div id="stories-grid" class="grid-container"></div>
     </div>
 
-    <!-- ================= 2. EXPLORE SCREEN ================= -->
     <div id="explore-screen" class="screen">
-        <input type="text" id="search-bar" class="form-control" placeholder="🔍 Search premium audiobooks..." oninput="filterSearch()">
-        <h3 class="section-title" style="margin-top:20px;">Discover All Content</h3>
-        <div id="explore-grid" class="grid-container"></div>
+        <input type="text" id="search-bar" class="form-control" placeholder="🔍 Search matching titles..." oninput="filterSearch()">
+        <div id="explore-grid" class="grid-container" style="margin-top: 20px;"></div>
     </div>
 
-    <!-- ================= 3. CART SCREEN ================= -->
     <div id="cart-screen" class="screen">
-        <h3 class="section-title">📦 Shopping Cart</h3>
-        <div id="cart-items-wrapper" class="cart-list"></div>
-        
-        <div id="cart-empty-state" class="empty-state">
-            <i class="fa-solid fa-basket-shopping" style="font-size:40px; margin-bottom:10px;"></i>
-            <p>Your cart is empty</p>
-        </div>
-        
-        <div id="cart-checkout-box" style="display: none; background: var(--card-bg); padding: 15px; border-radius: 16px; border:1px solid var(--border-color); margin-top:15px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-weight:bold;">
-                <span>Total Items:</span>
-                <span id="cart-total-price-text" style="color:#ff5500; font-size:16px;">₹0</span>
-            </div>
-            <button class="btn btn-block" onclick="openCartCheckout()"><i class="fa-solid fa-credit-card"></i> Proceed to Checkout</button>
+        <h3 class="section-title">Your Selected Cart</h3>
+        <div id="cart-items-wrapper" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <div id="cart-checkout-box" style="margin-top:20px; display:none;">
+            <button class="btn btn-block" onclick="openCartCheckout()">Checkout Bulk Pack</button>
         </div>
     </div>
 
-    <!-- ================= 4. PROFILE SCREEN ================= -->
     <div id="profile-screen" class="screen">
-        <h3 class="section-title">My Account</h3>
         <div class="profile-card">
-            <!-- 🛠️ Secret Toggle Trigger: इस अवतार या ID टेक्स्ट पर क्लिक करने से भी एडमिन बटन फ़ोर्स शो हो जाएगा -->
-            <div class="profile-avatar" id="user-avatar-letter" onclick="forceAdminShow()">U</div>
-            <div class="profile-name" id="user-display-name">Telegram User</div>
-            <div class="profile-meta" id="user-display-id" onclick="forceAdminShow()">ID: -------</div>
-            
-            <!-- Admin Button Container -->
-            <button id="admin-secret-btn" class="admin-trigger-btn" onclick="switchScreen('admin-screen')">
-                <i class="fa-solid fa-user-shield"></i> Open Admin Console
-            </button>
+            <h3 id="user-display-name">Premium User</h3>
+            <p id="user-display-id" style="color:var(--text-muted); font-size:12px; margin-top:4px;">ID: -----</p>
+            <button class="btn btn-block btn-outline" style="margin-top:15px;" onclick="switchScreen('admin-screen')"><i class="fa-solid fa-lock"></i> Dev Dashboard</button>
         </div>
-
-        <div style="background: var(--card-bg); border-radius: 16px; padding: 10px; border: 1px solid var(--border-color)">
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid var(--border-color); font-size:14px; cursor:pointer;" onclick="toggleThemeMode()">
-                <span><i class="fa-solid fa-circle-half-stroke" style="color:#0088cc; margin-right:10px;"></i> Switch App Theme</span>
-                <span id="theme-status-text" style="font-size:12px; font-weight:bold; color:#ff5500;">Light Mode</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid var(--border-color); font-size:14px; cursor:pointer;" onclick="switchScreen('library-screen')">
-                <span><i class="fa-solid fa-folder-open" style="color:#ff5500; margin-right:10px;"></i> My Library Packs</span>
-                <i class="fa-solid fa-chevron-right" style="color:var(--text-muted);"></i>
-            </div>
-            <div style="display:flex; justify-content:space-between; padding:12px; font-size:14px;">
-                <span><i class="fa-solid fa-headset" style="color:#00cc66; margin-right:10px;"></i> Contact Support</span>
-                <span style="color:var(--text-muted); font-size:12px;">@AryaSupport</span>
-            </div>
-        </div>
+        <h3 class="section-title">My Purchased Library</h3>
+        <div id="library-items-wrapper" class="grid-container" style="margin-top:10px;"></div>
     </div>
 
-    <!-- ================= LIBRARY SCREEN ================= -->
-    <div id="library-screen" class="screen">
-        <button class="btn" onclick="switchScreen('profile-screen')" style="margin-bottom:15px; padding:6px 12px; font-size:12px; background:rgba(255,255,255,0.05);"><i class="fa-solid fa-arrow-left"></i> Back</button>
-        <div class="empty-state"><i class="fa-solid fa-folder-open" style="font-size:40px; margin-bottom:10px;"></i><p>No stories purchased yet.</p></div>
-    </div>
-
-    <!-- ================= PRODUCT DETAIL SCREEN ================= -->
     <div id="detail-screen" class="screen">
-        <button class="btn" onclick="switchScreen('home-screen')" style="position:absolute; top:20px; left:20px; z-index:10; padding:6px 12px; font-size:12px; background:rgba(0,0,0,0.6); color:white;"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        <button class="btn" onclick="switchScreen('home-screen')" style="position:absolute; top:20px; left:20px; z-index:10; padding:6px 12px; font-size:11px; background:rgba(0,0,0,0.6); color:#fff;"><i class="fa-solid fa-arrow-left"></i> Back</button>
         <div id="detail-header-bg" class="detail-header">
             <div class="detail-meta-box">
-                <span class="tag-trending" id="detail-tag">Tag</span>
-                <h2 id="detail-title" style="font-size:24px; font-weight:800; color:white;">Title</h2>
+                <span class="tag-trending" id="detail-tag">TRENDING</span>
+                <h2 id="detail-title" style="color:#fff; font-size:22px; font-weight:800;">Show Title</h2>
             </div>
         </div>
         <div class="stat-grid">
-            <div class="stat-item"><div class="stat-label">Platform</div><div class="stat-value">Pocket FM</div></div>
+            <div class="stat-item"><div class="stat-label">Platform</div><div class="stat-value" style="color:var(--primary-color)">Pocket FM</div></div>
             <div class="stat-item"><div class="stat-label">Episodes</div><div class="stat-value" id="detail-episodes">0</div></div>
-            <div class="stat-item"><div class="stat-label">Files</div><div class="stat-value" id="detail-files">0</div></div>
+            <div class="stat-item"><div class="stat-label">Total Files</div><div class="stat-value" id="detail-files">0</div></div>
         </div>
-        <h3 style="font-size:14px; margin-bottom:8px; color:#ff5500;">CONTENT ACCESS & DELIVERY</h3>
-        <p class="desc-text" id="detail-desc">Loading...</p>
-        
+        <p id="detail-desc" style="color:var(--text-desc); line-height:1.5; margin-bottom:30px;"></p>
+
         <div class="action-bar-fixed">
-            <div class="price-box"><p style="font-size:10px; color:var(--text-muted);">Price</p><span style="font-size:18px; font-weight:800;" id="detail-price">₹0</span></div>
-            <button class="btn btn-outline" style="flex: 1;" onclick="addItemToCart()"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>
-            <button class="btn" style="flex: 1;" onclick="openCheckout()"><i class="fa-solid fa-bag-shopping"></i> Buy Now</button>
-        </div>
-    </div>
-
-    <!-- ================= SECURE CHECKOUT SCREEN ================= -->
-    <div id="checkout-screen" class="screen">
-        <button id="checkout-back-btn" class="btn" onclick="switchScreen('home-screen')" style="margin-bottom:15px; padding:6px 12px; font-size:12px; background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-main);"><i class="fa-solid fa-arrow-left"></i> Back</button>
-        
-        <div id="checkout-item-banner" class="checkout-banner">
-            <div id="checkout-banner-title" class="checkout-banner-title">Item Title</div>
-        </div>
-
-        <div class="checkout-box">
-            <div class="summary-row"><span id="checkout-item-name">Item Name</span><span id="checkout-item-base-price">₹0</span></div>
-            <div class="summary-row"><span>Platform Fee</span><span>₹0.00</span></div>
-            <div class="summary-total"><span>Total Payable</span><span id="checkout-item-total">₹0</span></div>
-            
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px; font-weight:bold; text-transform:uppercase;">Select UPI App to Pay</p>
-            
-            <div class="upi-apps-list">
-                <button onclick="executeUPI('gpay')" class="upi-app-btn"><i class="fa-brands fa-google-pay icon-gpay"></i> Google Pay</button>
-                <button onclick="executeUPI('phonepe')" class="upi-app-btn"><i class="fa-solid fa-wallet icon-phonepe"></i> PhonePe</button>
-                <button onclick="executeUPI('paytm')" class="upi-app-btn"><i class="fa-solid fa-money-bill-1-wave icon-paytm"></i> Paytm</button>
+            <button id="btn-get-free-ads" class="btn btn-outline btn-block" style="border-color:#ff9900; color:#ff9900;" onclick="openShortenerLink()">
+                <i class="fa-solid fa-rectangle-ad"></i> GET FREE WITH ADS
+            </button>
+            <div class="action-buttons-row">
+                <div><span style="font-size:11px; color:var(--text-muted); display:block;">Price</span><b style="font-size:16px;" id="detail-price">₹0</b></div>
+                <button class="btn btn-outline" style="flex:1;" onclick="addItemToCart()"><i class="fa-solid fa-cart-plus"></i> Cart</button>
+                <button class="btn" style="flex:2;" onclick="openCheckout()"><i class="fa-solid fa-bolt"></i> Buy Instant</button>
             </div>
         </div>
     </div>
 
-    <!-- ================= ADMIN SCREEN ================= -->
+    <div id="checkout-screen" class="screen">
+        <button class="btn" onclick="switchScreen('home-screen')" style="margin-bottom:15px; padding:6px 12px; font-size:12px;"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        <div class="checkout-box">
+            <div class="summary-total"><span>Total Payable Amount</span><span id="checkout-item-total" style="color:var(--primary-color)">₹0</span></div>
+            <p style="font-weight:700; font-size:12px; color:var(--text-muted); text-transform:uppercase;">Pay via Mobile Banking Apps</p>
+            <div class="upi-apps-list">
+                <button onclick="executeUPI('gpay')" class="upi-app-btn"><i class="fa-brands fa-google-pay" style="color:#4285f4"></i> Google Pay Link</button>
+                <button onclick="executeUPI('phonepe')" class="upi-app-btn"><i class="fa-solid fa-wallet" style="color:#5f259f"></i> PhonePe App</button>
+                <button onclick="executeUPI('paytm')" class="upi-app-btn"><i class="fa-solid fa-money-bill" style="color:#00baf2"></i> Paytm UPI</button>
+            </div>
+        </div>
+
+        <div style="background:var(--card-bg); border:1px solid var(--border-color); padding:20px; border-radius:20px;">
+            <h4 style="font-size:14px; font-weight:800; color:var(--primary-color);"><i class="fa-solid fa-receipt"></i> Verify Reference / UTR Number</h4>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Payment successful hone ke baad 12-digit ka UTR standard box me submit karein.</p>
+            <input type="text" id="utr-number-input" class="form-control" placeholder="Enter 12 Digit UTR No." maxlength="12">
+            <button class="btn btn-block" style="margin-top:12px; background:#00e676; color:#000;" onclick="submitUTRRequest()">Verify Payment Request</button>
+        </div>
+    </div>
+
     <div id="admin-screen" class="screen">
-        <button class="btn" onclick="switchScreen('profile-screen')" style="margin-bottom:15px; padding:6px 12px; font-size:12px; background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-main);"><i class="fa-solid fa-arrow-left"></i> Exit Console</button>
-        <h3 class="section-title" style="color:#ff9900;"><i class="fa-solid fa-user-gear"></i> Admin Management</h3>
+        <button class="btn btn-outline" onclick="switchScreen('profile-screen')" style="margin-bottom:15px; padding:6px 12px; font-size:12px;"><i class="fa-solid fa-arrow-left"></i> Exit Dashboard</button>
+        
         <div style="background:var(--card-bg); padding:15px; border-radius:16px; border:1px solid var(--border-color);">
-            <input type="text" id="adm-title" class="form-control" placeholder="Story Title">
+            <h4 style="margin-bottom:10px;">Push New Show Object</h4>
+            <input type="text" id="adm-title" class="form-control" placeholder="Title Name">
             <input type="text" id="adm-cover" class="form-control" placeholder="Cover Image URL">
-            <input type="text" id="adm-tag" class="form-control" placeholder="Genre Tag">
             <input type="number" id="adm-price" class="form-control" placeholder="Price (INR)">
-            <input type="number" id="adm-episodes" class="form-control" placeholder="Total Episodes">
+            <input type="number" id="adm-episodes" class="form-control" placeholder="Episodes Count">
             <input type="number" id="adm-files" class="form-control" placeholder="Files Count">
-            <textarea id="adm-desc" class="form-control" rows="3" placeholder="Description Summary..."></textarea>
-            <input type="text" id="adm-simple" class="form-control" placeholder="Direct Premium Link">
+            <input type="text" id="adm-simple" class="form-control" placeholder="Premium File Storage URL">
             <input type="text" id="adm-ad" class="form-control" placeholder="Ad Shortener Link">
-            <button class="btn btn-block" style="margin-top:15px;" onclick="submitStory()"><i class="fa-solid fa-plus"></i> Push Content</button>
+            <button class="btn btn-block" style="margin-top:15px;" onclick="submitStory()">Upload To Store</button>
+        </div>
+
+        <div class="utr-panel-box">
+            <h4 style="color:var(--primary-color); margin-bottom:12px;"><i class="fa-solid fa-headset"></i> Live Verification Queue</h4>
+            <div id="admin-utr-list-wrapper"></div>
         </div>
     </div>
 </div>
 
-<!-- Bottom Navigation Bar -->
 <div class="bottom-nav" id="global-nav">
     <button class="nav-item active" onclick="switchScreen('home-screen', this)"><i class="fa-solid fa-house"></i>HOME</button>
     <button class="nav-item" onclick="switchScreen('explore-screen', this)"><i class="fa-solid fa-compass"></i>EXPLORE</button>
-    <button class="nav-item" onclick="switchScreen('cart-screen', this)"><i class="fa-solid fa-basket-shopping"></i>CART<div id="cart-badge-count" class="cart-badge">0</div></button>
-    <button class="nav-item" onclick="switchScreen('profile-screen', this)"><i class="fa-solid fa-user"></i>PROFILE</button>
+    <button class="nav-item" onclick="switchScreen('cart-screen', this)"><i class="fa-solid fa-basket-shopping"></i>CART</button>
+    <button class="nav-item" onclick="switchScreen('profile-screen', this)"><i class="fa-solid fa-user"></i>LIBRARY</button>
 </div>
 
 <script>
@@ -302,68 +234,36 @@
     tg.ready(); tg.expand();
 
     const API_URL = window.location.origin;
-    let allStories = [];
-    let currentSlideIndex = 0;
-    let selectedStoryForView = null;
+    const TARGET_UPI = "6398324472@fam"; 
     
-    let cartItems = []; 
+    let allStories = [];
+    let cartItems = [];
+    let myLibraryPacks = [];
+    let utrRequests = [];
+    let selectedStoryForView = null;
     let checkoutMode = "single";
 
-    const TARGET_UPI = "6398324472@fam";
-    
-    // 🛠️ यहाँ अपनी Telegram User ID डालें ताकि बिना किसी रुकावट के बटन हमेशा दिखे
-    const ADMIN_TELEGRAM_ID = 5898522531; 
-
-    let localBanners = [
-        { title: "Zero To Hero", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500" },
-        { title: "Secret Billionaire", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500" }
-    ];
-
     window.addEventListener('load', async () => {
-        document.body.removeAttribute('data-theme');
-        document.getElementById('theme-status-text').innerText = "Light Mode";
-        
         setupTelegramUser();
-        renderCarouselUI();
-        startSlider();
         await loadStories();
-        updateCartUI();
+        loadLocalUTRDesk();
     });
 
     function toggleThemeMode() {
-        const currentTheme = document.body.getAttribute('data-theme');
-        if (currentTheme === 'dark') {
+        const theme = document.body.getAttribute('data-theme');
+        if(theme === 'dark') {
             document.body.removeAttribute('data-theme');
-            document.getElementById('theme-status-text').innerText = "Light Mode";
         } else {
             document.body.setAttribute('data-theme', 'dark');
-            document.getElementById('theme-status-text').innerText = "Dark Mode";
         }
     }
 
     function setupTelegramUser() {
         const user = tg.initDataUnsafe?.user;
-        if (user) {
-            document.getElementById('user-display-name').innerText = (user.first_name + " " + (user.last_name || "")).trim();
+        if(user) {
+            document.getElementById('user-display-name').innerText = user.first_name;
             document.getElementById('user-display-id').innerText = "ID: " + user.id;
-            document.getElementById('user-avatar-letter').innerText = user.first_name.charAt(0).toUpperCase();
-
-            // ID Validation check
-            if (Number(user.id) === Number(ADMIN_TELEGRAM_ID)) {
-                document.getElementById('admin-secret-btn').style.display = 'flex';
-            }
-        } else {
-            // सिमुलेटर ब्राउज़र मोड में भी बटन को विज़िबल रखें ताकि आप टेस्टिंग कर सकें
-            document.getElementById('user-display-id').innerText = "ID: Admin Mode (Simulator)";
-            document.getElementById('admin-secret-btn').style.display = 'flex';
         }
-    }
-
-    // 🛠️ Secret Backdoor Function: अगर ID मैच न हो, तो प्रोफाइल इमेज/ID पर क्लिक करने से भी पैनल विज़िबल हो जाएगा!
-    function forceAdminShow() {
-        const adminBtn = document.getElementById('admin-secret-btn');
-        adminBtn.style.display = 'flex';
-        alert("🛠️ Admin mode unlocked manually!");
     }
 
     async function loadStories() {
@@ -371,20 +271,20 @@
             const res = await fetch(`${API_URL}/api/stories`);
             if(res.ok) {
                 allStories = await res.json();
-                renderGrids(allStories);
+                renderStoreUI(allStories);
             }
-        } catch(e) { console.error("Error loading stories:", e); }
+        } catch(e) { console.error("Database connection error: ", e); }
     }
 
-    function renderGrids(data) {
-        const homeGrid = document.getElementById('stories-grid');
-        const expGrid = document.getElementById('explore-grid');
-        if(!homeGrid || !expGrid) return;
+    function renderStoreUI(data) {
+        const hGrid = document.getElementById('stories-grid');
+        const eGrid = document.getElementById('explore-grid');
+        if(!hGrid) return;
+        hGrid.innerHTML = ''; eGrid.innerHTML = '';
         
-        homeGrid.innerHTML = ''; expGrid.innerHTML = '';
         data.forEach(s => {
-            const h = `<div class="show-card" onclick="openProductPage('${s._id}')"><img src="${s.cover || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500'}"><div class="card-details"><div class="card-title">${s.title}</div><div class="card-price">₹${s.price}</div></div></div>`;
-            homeGrid.innerHTML += h; expGrid.innerHTML += h;
+            const card = `<div class="show-card" onclick="openProductPage('${s._id}')"><img src="${s.cover}"><div class="card-details"><div class="card-title">${s.title}</div><div class="card-price">₹${s.price}</div></div></div>`;
+            hGrid.innerHTML += card; eGrid.innerHTML += card;
         });
     }
 
@@ -392,216 +292,163 @@
         const s = allStories.find(item => item._id === id);
         if(!s) return;
         selectedStoryForView = s;
-        document.getElementById('global-header').style.display = 'none';
-        document.getElementById('global-nav').style.display = 'none';
+        
         document.getElementById('detail-header-bg').style.backgroundImage = `url('${s.cover}')`;
         document.getElementById('detail-title').innerText = s.title;
-        document.getElementById('detail-tag').innerText = s.tag || "Premium";
         document.getElementById('detail-episodes').innerText = s.episodes || 0;
         document.getElementById('detail-files').innerText = s.files_count || 0;
-        document.getElementById('detail-desc').innerText = s.description || "Premium audiobook pack.";
+        document.getElementById('detail-desc').innerText = s.description || "No Overview setup available.";
         document.getElementById('detail-price').innerText = "₹" + s.price;
-        
-        document.getElementById('checkout-back-btn').setAttribute("onclick", "switchScreen('detail-screen')");
+
+        const adBtn = document.getElementById('btn-get-free-ads');
+        if(s.ad_link && s.ad_link.trim() !== "") {
+            adBtn.style.display = 'inline-flex';
+        } else {
+            adBtn.style.display = 'none';
+        }
         switchScreen('detail-screen');
     }
 
-    function addItemToCart() {
-        if(!selectedStoryForView) return;
-        const exists = cartItems.some(item => item._id === selectedStoryForView._id);
-        if(exists) {
-            alert("⚠️ This pack is already inside your cart.");
-            return;
-        }
-        cartItems.push(selectedStoryForView);
-        updateCartUI();
-        alert("🛒 Added to cart successfully!");
-    }
-
-    function removeItemFromCart(id) {
-        cartItems = cartItems.filter(item => item._id !== id);
-        updateCartUI();
-    }
-
-    function updateCartUI() {
-        const wrapper = document.getElementById('cart-items-wrapper');
-        const emptyState = document.getElementById('cart-empty-state');
-        const checkoutBox = document.getElementById('cart-checkout-box');
-        const badge = document.getElementById('cart-badge-count');
-
-        if (cartItems.length > 0) {
-            badge.innerText = cartItems.length;
-            badge.style.display = 'flex';
-            emptyState.style.display = 'none';
-            checkoutBox.style.display = 'block';
-        } else {
-            badge.style.display = 'none';
-            emptyState.style.display = 'block';
-            checkoutBox.style.display = 'none';
-        }
-
-        wrapper.innerHTML = '';
-        let total = 0;
-
-        cartItems.forEach(item => {
-            total += Number(item.price || 0);
-            wrapper.innerHTML += `
-                <div class="cart-item">
-                    <img src="${item.cover}">
-                    <div class="cart-item-info">
-                        <div class="cart-item-title">${item.title}</div>
-                        <div class="cart-item-price">₹${item.price}</div>
-                    </div>
-                    <button class="btn-remove-item" onclick="removeItemFromCart('${item._id}')">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
-                </div>
-            `;
-        });
-
-        document.getElementById('cart-total-price-text').innerText = "₹" + total;
+    function openShortenerLink() {
+        if(!selectedStoryForView || !selectedStoryForView.ad_link) return;
+        // Fixing WebApp Open URL Rules inside App context
+        tg.openLink(selectedStoryForView.ad_link, { try_instant_view: false });
     }
 
     function openCheckout() {
         if(!selectedStoryForView) return;
         checkoutMode = "single";
-        
-        document.getElementById('checkout-item-banner').style.backgroundImage = `url('${selectedStoryForView.cover}')`;
-        document.getElementById('checkout-banner-title').innerText = selectedStoryForView.title;
-        document.getElementById('checkout-item-name').innerText = selectedStoryForView.title;
-        document.getElementById('checkout-item-base-price').innerText = "₹" + selectedStoryForView.price;
         document.getElementById('checkout-item-total').innerText = "₹" + selectedStoryForView.price;
-
-        document.getElementById('checkout-back-btn').setAttribute("onclick", "switchScreen('detail-screen')");
         switchScreen('checkout-screen');
     }
 
-    function openCartCheckout() {
-        if(cartItems.length === 0) return;
-        checkoutMode = "cart";
-
-        let totalPrice = cartItems.reduce((acc, item) => acc + Number(item.price || 0), 0);
-
-        document.getElementById('checkout-item-banner').style.backgroundImage = `url('${cartItems[0].cover}')`;
-        document.getElementById('checkout-banner-title').innerText = `Cart Bulk Purchase (${cartItems.length} Shows)`;
-        document.getElementById('checkout-item-name').innerText = `${cartItems.length} Premium Audiobooks`;
-        document.getElementById('checkout-item-base-price').innerText = "₹" + totalPrice;
-        document.getElementById('checkout-item-total').innerText = "₹" + totalPrice;
-
-        document.getElementById('checkout-back-btn').setAttribute("onclick", "switchScreen('cart-screen')");
-        switchScreen('checkout-screen');
-    }
-
-    // 🛠️ PAYMENT ERROR FIXED FUNCTION
     function executeUPI(platform) {
-        let amount = 0;
-        let note = "Pay_PremiumShow";
-
-        if (checkoutMode === "single") {
-            if(!selectedStoryForView) { alert("Error: No item selected."); return; }
-            amount = selectedStoryForView.price;
-            note = "Pay_" + selectedStoryForView.title.replace(/[^a-zA-Z0-9]/g, "");
-        } else {
-            if(cartItems.length === 0) { alert("Error: Cart is empty."); return; }
-            amount = cartItems.reduce((acc, item) => acc + Number(item.price || 0), 0);
-            note = `Cart_${cartItems.length}_Packs`;
-        }
-
-        // UPI deep links strings should be accurately encoded
-        let baseURI = `upi://pay?pa=${encodeURIComponent(TARGET_UPI)}&pn=AryaPremium&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+        let amt = checkoutMode === "single" ? selectedStoryForView.price : cartItems.reduce((a, b) => a + Number(b.price), 0);
+        let note = "Pack_Payment_" + Date.now();
         
-        if (platform === 'gpay') {
-            baseURI += "&mode=02&orgid=000000";
-        }
-
+        // Anti-Block Deeplink URL Standard Pattern for Telegram In-App Browsers
+        let deepLink = `upi://pay?pa=${TARGET_UPI}&pn=BOTzStore&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
+        
         try {
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
-                tg.openLink(baseURI);
-            } else {
-                window.location.href = baseURI; // Fallback redirect if telegram object triggers errors
-            }
-        } catch (err) {
-            alert("Payment Link Error: " + err.message);
+            // Using correct method to trigger protocol scheme handler safely
+            tg.openLink(deepLink);
+        } catch(e) {
+            window.location.href = deepLink;
         }
     }
 
-    function switchScreen(id, element = null) {
-        // Safe check for screens switching
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        const activeScreen = document.getElementById(id);
-        if(activeScreen) activeScreen.classList.add('active');
-        
-        if(id === 'cart-screen') {
-            updateCartUI();
+    function submitUTRRequest() {
+        const utrInput = document.getElementById('utr-number-input').value.trim();
+        if(utrInput.length !== 12 || isNaN(utrInput)) {
+            alert("❌ Please input exactly a valid 12-Digit transaction UTR number.");
+            return;
         }
 
-        if(id !== 'detail-screen' && id !== 'checkout-screen') {
-            document.getElementById('global-header').style.display = 'flex';
-            document.getElementById('global-nav').style.display = 'flex';
+        let itemsSubmitted = checkoutMode === "single" ? [selectedStoryForView] : [...cartItems];
+        
+        const reqObject = {
+            id: "REQ_" + Date.now(),
+            utr: utrInput,
+            userName: tg.initDataUnsafe?.user?.first_name || "Guest Account",
+            items: itemsSubmitted
+        };
+
+        utrRequests.push(reqObject);
+        localStorage.setItem('internal_utr_pool', JSON.stringify(utrRequests));
+        
+        alert("🚀 UTR Sent to Admin Dashboard! Validation approval update soon.");
+        document.getElementById('utr-number-input').value = '';
+        renderAdminDashboardQueue();
+        switchScreen('home-screen');
+    }
+
+    function loadLocalUTRDesk() {
+        const cached = localStorage.getItem('internal_utr_pool');
+        if(cached) utrRequests = JSON.parse(cached);
+        renderAdminDashboardQueue();
+    }
+
+    function renderAdminDashboardQueue() {
+        const list = document.getElementById('admin-utr-list-wrapper');
+        if(!list) return;
+        if(utrRequests.length === 0) {
+            list.innerHTML = `<p style="font-size:12px; color:var(--text-muted); text-align:center;">No pending payment requests present.</p>`;
+            return;
         }
-        if(element) {
+        list.innerHTML = '';
+        utrRequests.forEach(r => {
+            list.innerHTML += `
+                <div class="req-card">
+                    <div class="req-meta">User: ${r.userName}</div>
+                    <div class="req-title">UTR: ${r.utr}</div>
+                    <div style="font-size:12px; color:var(--text-muted)">Items: ${r.items.map(i => i.title).join(', ')}</div>
+                    <div class="req-actions">
+                        <button class="btn-approve" onclick="resolveUTR('${r.id}', true)">APPROVE</button>
+                        <button class="btn-reject" onclick="resolveUTR('${r.id}', false)">REJECT</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function resolveUTR(id, approved) {
+        const target = utrRequests.find(x => x.id === id);
+        if(!target) return;
+
+        if(approved) {
+            target.items.forEach(show => {
+                if(!myLibraryPacks.some(l => l._id === show._id)) myLibraryPacks.push(show);
+            });
+            alert("✅ Show unlocked inside user library successfully!");
+            renderLibraryUI();
+        } else {
+            alert("❌ Payment request rejected.");
+        }
+
+        utrRequests = utrRequests.filter(x => x.id !== id);
+        localStorage.setItem('internal_utr_pool', JSON.stringify(utrRequests));
+        renderAdminDashboardQueue();
+    }
+
+    function renderLibraryUI() {
+        const wrap = document.getElementById('library-items-wrapper');
+        if(!wrap) return;
+        wrap.innerHTML = '';
+        myLibraryPacks.forEach(s => {
+            wrap.innerHTML += `<div class="show-card" onclick="tg.openLink('${s.simple_link}')"><img src="${s.cover}"><div class="card-details"><div class="card-title">${s.title}</div><div class="card-price" style="color:#00e676">ACCESS STORAGE</div></div></div>`;
+        });
+    }
+
+    function switchScreen(id, el = null) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(el) {
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            element.classList.add('active');
+            el.classList.add('active');
         }
     }
 
     async function submitStory() {
-        const payload = {
+        const data = {
             title: document.getElementById('adm-title').value,
             cover: document.getElementById('adm-cover').value,
-            tag: document.getElementById('adm-tag').value,
             price: Number(document.getElementById('adm-price').value),
             episodes: Number(document.getElementById('adm-episodes').value),
             files_count: Number(document.getElementById('adm-files').value),
-            description: document.getElementById('adm-desc').value,
             simple_link: document.getElementById('adm-simple').value,
             ad_link: document.getElementById('adm-ad').value
         };
-        
-        if(!payload.title || !payload.price) {
-            alert("Please enter title and price fields!");
-            return;
-        }
 
-        try {
-            const res = await fetch(`${API_URL}/api/stories`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if(res.ok) { 
-                alert('Show pushed successfully!'); 
-                await loadStories(); 
-                switchScreen('home-screen'); 
-            } else {
-                alert('Server responded with an error code.');
-            }
-        } catch (e) {
-            alert('Failed to send data to server: ' + e.message);
-        }
-    }
-
-    function renderCarouselUI() {
-        const wrap = document.getElementById('carousel-wrapper'); if(!wrap) return;
-        wrap.innerHTML = '';
-        localBanners.forEach((b, i) => {
-            wrap.innerHTML += `<div class="carousel-slide ${i===0?'active':''}" style="background-image: url('${b.image}');"><div class="banner-content"><span class="tag-trending">TRENDING</span><h2 class="banner-title">${b.title}</h2></div></div>`;
+        const res = await fetch(`${API_URL}/api/stories`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
         });
-    }
-
-    function startSlider() {
-        setInterval(() => {
-            const slides = document.querySelectorAll('.carousel-slide'); if(!slides.length) return;
-            slides[currentSlideIndex].classList.remove('active');
-            currentSlideIndex = (currentSlideIndex + 1) % slides.length;
-            slides[currentSlideIndex].classList.add('active');
-        }, 4000);
-    }
-
-    function filterSearch() {
-        const query = document.getElementById('search-bar').value.toLowerCase();
-        const filtered = allStories.filter(s => s.title.toLowerCase().includes(query));
-        renderGrids(filtered);
+        if(res.ok) {
+            alert("Show published!");
+            loadStories();
+            switchScreen('home-screen');
+        }
     }
 </script>
 </body>
