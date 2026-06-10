@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocket FM Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #121212; color: #fff; margin: 0; padding: 15px; text-align: center;}
+        .container { max-width: 500px; margin: auto; }
+        .story-card { background: #1f1f1f; padding: 15px; border-radius: 12px; margin-bottom: 15px; text-align: left; display: flex; align-items: center; gap: 15px; border: 1px solid #333;}
+        .story-card img { width: 75px; height: 75px; border-radius: 8px; object-fit: cover; }
+        .story-info { flex: 1; }
+        .btn { background: #e50914; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold;}
+        .share-btn { background: #0088cc; margin-left: 5px; }
+        #player-view { display: none; background: #1f1f1f; padding: 25px; border-radius: 15px; border: 1px solid #333; margin-top: 10px; }
+        .cover-large { width: 220px; height: 220px; border-radius: 15px; object-fit: cover; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📻 पॉकेट एफएम मिनी ऐप</h2>
+    <hr style="border-color: #333; margin-bottom: 20px;">
+
+    <div id="home-feed">
+        <h3 style="text-align: left; color: #aaa;">ट्रेंडिंग स्टोरीज</h3>
+        <div id="stories-list">कंटेंट लोड हो रहा है...</div>
+    </div>
+
+    <div id="player-view">
+        <button class="btn" onclick="showHome()" style="background:#555; padding: 5px 10px; font-size: 12px;">🔙 मुख्य पेज</button>
+        <br><br>
+        <img id="player-cover" class="cover-large" src="" alt="Cover">
+        <h3 id="player-title" style="margin: 5px 0;">स्टोरी का नाम</h3>
+        <p id="player-tag" style="color: #e50914; font-size: 14px; font-weight: bold; margin-bottom: 20px;"></p>
+        
+        <div style="background: #292929; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <p style="margin: 0 0 10px 0; font-size: 14px; color: #aaa;">🎵 प्लेयर एक्टिवेटेड</p>
+            <span id="player-file-id" style="color: #0088cc; font-size: 12px; word-break: break-all;"></span>
+        </div>
+        <button class="btn" style="width: 100%; padding: 12px;">▶️ प्ले स्टोरी</button>
+    </div>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand(); // ऐप को पूरी स्क्रीन पर खोलें
+
+    const API_URL = window.location.origin;
+
+    // ये वेरिएबल्स नीचे कोड में अपने आप बैकएंड से रिप्लेस हो जाएंगे (सुरक्षा के लिए)
+    let BOT_USERNAME = ""; 
+    let APP_SHORT_NAME = ""; 
+
+    // ऐप शुरू होते ही चेक करें कि क्या यूजर डायरेक्ट स्टोरी लिंक से आया है
+    window.addEventListener('load', async () => {
+        // बैकएंड से बॉट की सेटिंग्स लाना ताकि लिंक सही बने
+        try {
+            const configRes = await fetch(`${API_URL}/api/config`);
+            const config = await configRes.json();
+            BOT_USERNAME = config.botUsername;
+            APP_SHORT_NAME = config.appShortName;
+        } catch(e) { console.error("Config load error"); }
+
+        const startParam = tg.initDataUnsafe?.start_param;
+        if (startParam && startParam.startsWith('story_')) {
+            // अगर लिंक में MongoDB ID है (जैसे: story_65c5d1...)
+            const mongoId = startParam.replace('story_', '');
+            loadSingleStory(mongoId);
+        } else {
+            // सामान्य रूप से ऐप खोलने पर सब कुछ दिखाएं
+            loadAllStories();
+        }
+    });
+
+    // डेटाबेस से सभी स्टोरीज होमपेज पर लोड करना
+    async function loadAllStories() {
+        try {
+            const res = await fetch(`${API_URL}/api/stories`);
+            const stories = await res.json();
+            const listDiv = document.getElementById('stories-list');
+            listDiv.innerHTML = '';
+
+            if(stories.length === 0) {
+                listDiv.innerHTML = '<p style="color:#aaa;">डेटाबेस में अभी कोई स्टोरी उपलब्ध नहीं है।</p>';
+                return;
+            }
+
+            stories.forEach(story => {
+                listDiv.innerHTML += `
+                    <div class="story-card">
+                        <img src="${story.cover}" alt="cover">
+                        <div class="story-info">
+                            <h4 style="margin:0 0 5px 0; font-size:16px;">${story.title}</h4>
+                            <span style="font-size:12px; color:#e50914; font-weight:bold;">${story.tag}</span><br><br>
+                            <button class="btn" onclick="loadSingleStory('${story._id}')">▶️ सुनें</button>
+                            <button class="btn share-btn" onclick="shareLink('${story._id}')">🔗 शेयर लिंक</button>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (err) { document.getElementById('stories-list').innerHTML = 'डेटा लोड करने में समस्या आई।'; }
+    }
+
+    // यूनीक लिंक से सिंगल स्टोरी को लोड करना
+    async function loadSingleStory(id) {
+        try {
+            const res = await fetch(`${API_URL}/api/story/${id}`);
+            if(!res.ok) throw new Error();
+            const story = await res.json();
+
+            document.getElementById('home-feed').style.display = 'none';
+            document.getElementById('player-view').style.display = 'block';
+
+            document.getElementById('player-title').innerText = story.title;
+            document.getElementById('player-cover').src = story.cover;
+            document.getElementById('player-tag').innerText = "कैटेगरी: " + story.tag;
+            document.getElementById('player-file-id').innerText = "फ़ाइल ID: " + story.telegram_file_id;
+        } catch (err) { 
+            alert('स्टोरी नहीं मिली या डिलीट हो चुकी है!'); 
+            showHome(); 
+        }
+    }
+
+    // पॉकेट एफएम जैसी यूनीक लिंक जनरेट और कॉपी करना
+    function shareLink(mongoId) {
+        const uniqueLink = `https://t.me/${BOT_USERNAME}/${APP_SHORT_NAME}?startapp=story_${mongoId}`;
+        navigator.clipboard.writeText(uniqueLink);
+        
+        if (tg.showPopup) {
+            tg.showPopup({
+                title: 'लिंक कॉपी हो गई! 🎉',
+                message: 'पॉकेट एफएम स्टाइल यूनीक लिंक कॉपी हो चुकी है। इसे कहीं भी शेयर करें, यूजर सीधे इसी स्टोरी पर आएगा।',
+                buttons: [{type: 'ok'}]
+            });
+        } else {
+            alert('लिंक कॉपी हो गई: ' + uniqueLink);
+        }
+    }
+
+    function showHome() {
+        document.getElementById('home-feed').style.display = 'block';
+        document.getElementById('player-view').style.display = 'none';
+        loadAllStories();
+    }
+</script>
+</body>
+</html>
